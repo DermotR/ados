@@ -2,29 +2,50 @@
 
 Agentic Development Operating System (ADOS) for governed AI-assisted software delivery.
 
-## Contents
+## End User Quick Start (VS Code)
+
+1. Install prerequisites:
+- `git`
+- `bash` (macOS/Linux terminal, or Git Bash on Windows)
+- VS Code
+
+2. Clone ADOS once:
+
+```bash
+git clone https://github.com/DermotR/ados.git ~/tools/ados
+```
+
+3. Create/open your new project folder in VS Code.
+
+4. In the VS Code terminal, from inside your project folder, run:
+
+```bash
+bash ~/tools/ados/ados-template/scripts/init-ados.sh .
+```
+
+5. If your project folder is not empty, run:
+
+```bash
+bash ~/tools/ados/ados-template/scripts/init-ados.sh . --force
+```
+
+6. Complete setup:
+- Fill `docs/backlog-active.md` with current milestone + 3-10 active items.
+- Review `CLAUDE.md` commands and key paths.
+- Start with `/project:session-start`.
+- Commit the bootstrap files.
+
+## Repo Contents
 
 - `ADOS-v2-PROCESS.md`: process reference and templates
 - `ados-template/`: scaffold + initializer + copier template
 
-## Initialize A New Project
-
-From inside your new project folder:
-
-```bash
-bash /path/to/ados/ados-template/scripts/init-ados.sh .
-```
-
-If the folder is not empty:
-
-```bash
-bash /path/to/ados/ados-template/scripts/init-ados.sh . --force
-```
+## Alternative Init Paths
 
 Non-interactive:
 
 ```bash
-bash /path/to/ados/ados-template/scripts/init-ados.sh \
+bash ~/tools/ados/ados-template/scripts/init-ados.sh \
   --target . \
   --non-interactive \
   --project-name "My Project" \
@@ -35,7 +56,7 @@ bash /path/to/ados/ados-template/scripts/init-ados.sh \
 Copier alternative:
 
 ```bash
-copier copy /path/to/ados/ados-template .
+copier copy ~/tools/ados/ados-template .
 ```
 
 ## Local Validation
