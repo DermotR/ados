@@ -2,17 +2,34 @@
   "hooks": {
     "SessionStart": [
       {
-        "command": "bash .claude/hooks/session-start.sh"
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-start.sh"
+          }
+        ]
       }
     ],
     "Stop": [
       {
-        "command": "bash .claude/hooks/stop-validate.sh"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/stop-validate.sh"
+          }
+        ]
       }
     ],
     "PreCompact": [
       {
-        "command": "bash .claude/hooks/pre-compact.sh"
+        "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-compact.sh"
+          }
+        ]
       }
     ]
   }
