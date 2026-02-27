@@ -1,0 +1,23 @@
+name: ados-template-smoke
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Copier
+        run: python -m pip install --upgrade pip copier
+
+      - name: Run smoke tests
+        run: bash ados-template/scripts/smoke-test.sh --require-copier

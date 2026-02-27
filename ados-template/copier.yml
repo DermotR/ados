@@ -1,0 +1,71 @@
+_min_copier_version: "9"
+_subdirectory: template
+_answers_file: .copier-answers.ados.yml
+
+project_name:
+  type: str
+  help: Project name
+  default: New Project
+
+project_stage:
+  type: str
+  help: Project stage (for overview context)
+  default: MVP
+
+tech_stack:
+  type: str
+  help: Tech stack summary
+  default: TBD
+
+build_cmd:
+  type: str
+  help: Build command
+  default: npm run build
+
+dev_cmd:
+  type: str
+  help: Dev command
+  default: npm run dev
+
+lint_cmd:
+  type: str
+  help: Lint command
+  default: npm run lint
+
+typecheck_cmd:
+  type: str
+  help: Typecheck command
+  default: npm run typecheck
+
+format_cmd:
+  type: str
+  help: Format-check command
+  default: npm run format:check
+
+test_cmd:
+  type: str
+  help: Test command
+  default: npm test
+
+key_paths:
+  type: str
+  help: Key paths summary (one line)
+  default: src/, tests/, docs/
+
+_tasks:
+  - |
+    cat > .ados/.render-values <<'EOF_VALUES'
+    PROJECT_NAME={{ project_name }}
+    PROJECT_STAGE={{ project_stage }}
+    TECH_STACK={{ tech_stack }}
+    BUILD_CMD={{ build_cmd }}
+    DEV_CMD={{ dev_cmd }}
+    LINT_CMD={{ lint_cmd }}
+    TYPECHECK_CMD={{ typecheck_cmd }}
+    FORMAT_CMD={{ format_cmd }}
+    TEST_CMD={{ test_cmd }}
+    KEY_PATHS={{ key_paths }}
+    AUDIT_DATE=
+    EOF_VALUES
+  - bash .ados/render-ados.sh --values-file .ados/.render-values
+  - rm -rf .ados

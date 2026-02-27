@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "command": "bash .claude/hooks/session-start.sh"
+      }
+    ],
+    "Stop": [
+      {
+        "command": "bash .claude/hooks/stop-validate.sh"
+      }
+    ],
+    "PreCompact": [
+      {
+        "command": "bash .claude/hooks/pre-compact.sh"
+      }
+    ]
+  }
+}

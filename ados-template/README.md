@@ -1,0 +1,65 @@
+# ADOS Template
+
+Lean bootstrap for the Agentic Development Operating System (ADOS) v2.
+
+## What this provides
+- A minimal ADOS file map scaffold
+- Lean always-loaded defaults (`CLAUDE.md`, `docs/.session-cursor.md`, `docs/context/core.md`)
+- Active backlog split (`docs/backlog-active.md` + `docs/backlog.md`)
+- Slash command templates and hook stubs
+- A guided initializer script for repo-specific values
+- Native Copier entrypoint (`copier.yml`)
+
+## Quick start options
+1. GitHub template repo: click `Use this template`.
+2. `degit`: `npx degit <org>/ados-template my-project`.
+3. Copier: `copier copy <path-or-repo>/ados-template <target-dir>`.
+4. Existing repo: run `init-ados.sh` against current repo root.
+
+## Guided init
+Run from your target repo root:
+
+```bash
+bash path/to/ados-template/scripts/init-ados.sh .
+```
+
+Non-interactive mode:
+
+```bash
+bash path/to/ados-template/scripts/init-ados.sh \
+  --target . \
+  --non-interactive \
+  --project-name "My Project" \
+  --project-stage "MVP" \
+  --tech-stack "TypeScript, Next.js, Postgres" \
+  --build-cmd "pnpm build" \
+  --dev-cmd "pnpm dev" \
+  --lint-cmd "pnpm lint" \
+  --typecheck-cmd "pnpm typecheck" \
+  --format-cmd "pnpm format:check" \
+  --test-cmd "pnpm test" \
+  --key-paths "apps/web, packages/api, docs"
+```
+
+The script asks only for:
+- project name
+- project stage
+- tech stack
+- build/dev/lint/typecheck/format/test commands
+- key paths summary
+
+Then it fills placeholders in:
+- `CLAUDE.md`
+- `docs/.session-cursor.md`
+- `docs/context/core.md`
+- `docs/backlog-active.md`
+
+## Guardrails
+- `TEMPLATE_VERSION` is included for upgrade tracking.
+- `CLAUDE.md` is intentionally lean and imports only `@docs/context/core.md`.
+
+## Self-test
+
+```bash
+bash ados-template/scripts/smoke-test.sh
+```
