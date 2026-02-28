@@ -1,11 +1,12 @@
 # ADOS Template
 
-Lean bootstrap for the Agentic Development Operating System (ADOS) v2.
+Lean bootstrap for the Agentic Development Operating System (ADOS) v3.
 
 ## What this provides
 - A minimal ADOS file map scaffold
 - Lean always-loaded defaults (`CLAUDE.md`, `docs/.session-cursor.md`, `docs/context/core.md`)
 - Active backlog split (`docs/backlog-active.md` + `docs/backlog.md`)
+- Risk-tier session close workflow (`lite|standard|full`)
 - Slash command templates and hook stubs
 - A guided initializer script for repo-specific values
 - Native Copier entrypoint (`copier.yml`)
@@ -53,6 +54,11 @@ Then it fills placeholders in:
 - `docs/.session-cursor.md`
 - `docs/context/core.md`
 - `docs/backlog-active.md`
+
+The scaffold defaults to risk-tier session close behavior:
+- `lite`: small low-risk changes (default when safe)
+- `standard`: normal feature work
+- `full`: high-risk/cross-cutting/release-critical work
 
 ## Guardrails
 - `TEMPLATE_VERSION` is included for upgrade tracking.

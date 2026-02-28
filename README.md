@@ -33,11 +33,13 @@ bash ~/tools/ados/ados-template/scripts/init-ados.sh . --force
 - Fill `docs/backlog-active.md` with current milestone + 3-10 active items.
 - Review `CLAUDE.md` commands and key paths.
 - Start with `/project:session-start`.
+- Close sessions with `/project:session-end [lite|standard|full]` (default to lightest safe mode).
 - Commit the bootstrap files.
 
 ## Repo Contents
 
-- `ADOS-v2-PROCESS.md`: process reference and templates
+- `ADOS-v3-PROCESS.md`: current process reference and templates
+- `ADOS-v2-PROCESS.md`: previous version (archived reference)
 - `ados-template/`: scaffold + initializer + copier template
 
 ## Alternative Init Paths

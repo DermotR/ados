@@ -25,7 +25,7 @@ feat: | fix: | refactor: | docs: | test: | chore:
 
 ## Session Protocol
 - Start: `/project:session-start`
-- End: `/project:session-end`
+- End: `/project:session-end [lite|standard|full]`
 - Baseline: `/project:baseline-check [task summary]`
 - Between tasks: `/clear`
 
@@ -33,7 +33,9 @@ feat: | fix: | refactor: | docs: | test: | chore:
 - Backlog-first: never start work without active backlog IDs
 - Load `docs/backlog-active.md` before `docs/backlog.md`
 - Evaluate before implementing: spec -> scope -> dependencies -> test strategy
-- Quality gates before every commit: `__LINT_CMD__ && __TYPECHECK_CMD__ && __FORMAT_CMD__`
+- Select close mode by risk; default to the lightest safe mode
+- `standard` gates: `__LINT_CMD__ && __TYPECHECK_CMD__ && __FORMAT_CMD__`
+- `full` gates: standard + full test suite (`__TEST_CMD__`)
 - Decisions get IDs: D-YYYYMMDD-SNN-NN
 - Work on feature branches, not main
 - No net growth for always-loaded rules (add one, remove/shrink one)

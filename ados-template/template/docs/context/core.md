@@ -14,4 +14,5 @@ If this file conflicts with repo state, follow the repo and update this file.
 ## Guardrails
 - Use active backlog slice before opening full backlog.
 - Keep always-loaded docs lean and stable.
+- Use `lite` session close by default; escalate to `standard|full` on risk triggers.
 - If instructions conflict with code, follow code and update docs.

@@ -1,6 +1,4 @@
-# Agentic Development Operating System (ADOS) v2
-
-> Archived process version. Current version: `ADOS-v3-PROCESS.md`.
+# Agentic Development Operating System (ADOS) v3
 
 ## Process Reference
 
@@ -43,7 +41,7 @@ Read cursor → Select work → Load context → Evaluate → Implement → Revi
 | Document | Purpose |
 |----------|---------|
 | `ADOS-INIT.md` | Bootstrap instructions for new projects |
-| `ADOS-UPGRADE-DIRECTIVE.md` | Migration guide from v1 to v2 |
+| `ADOS-UPGRADE-DIRECTIVE.md` | Migration guide from v2 to v3 |
 | `ADOS-TEST-FRAMEWORK.md` | Protocol conformance testing harness |
 | `ados-system-diagram.mermaid` | Visual reference of the full system |
 
@@ -289,75 +287,90 @@ This prevents wasted work on directions the user would veto.
 - Work on feature branches, never directly on main
 - Conventional commits: `feat:` | `fix:` | `refactor:` | `docs:` | `test:` | `chore:`
 - Small, atomic commits with clear messages
-- Quality gates before every commit (see §8)
+- Run checks appropriate to close mode before commit (see §8)
 - Never force-push without explicit user approval
 
-### 4.3 Session Close Protocol
+### 4.3 Session Close Protocol (Risk-Tiered)
 
-Triggered by: `/project:session-end`
+Triggered by: `/project:session-end [lite|standard|full]`
 
-Uses `context: fork` — the close protocol reads many files to generate reports.
-The main implementation context stays clean.
+Uses `context: fork` when close work needs broad file reads. Keep the main
+implementation context clean.
 
 ```
-Step 1: QUALITY GATES
-  Run: lint + typecheck + format check
-  Fix any failures before proceeding. Do not skip.
+Step 0: CLASSIFY CLOSE MODE
+  Infer from `git diff --stat` + change type, unless user explicitly selects:
 
-Step 2: CODE REVIEW (conditional)
-  For large changesets (>5 files or new abstractions):
-    Invoke code-reviewer subagent (see §7.2)
-    Address any BLOCK verdicts before committing
-  For small changesets:
-    Quick self-review — the most important issue only
+  lite:
+    - <=3 files changed
+    - no schema/API contract/auth/payment/security/core infra changes
+    - no new abstraction/pattern introduction
 
-Step 3: GENERATE SESSION LOG
-  Create docs/sessions/YYYY-MM-DD.md from template
-  Required sections:
-    - Objective
-    - Active backlog IDs
-    - Packs loaded
-    - Files read (minimal — only context-loading reads, not every file touched)
-    - Work completed (summary, not transcript)
-    - Decisions (D-YYYYMMDD-SNN-NN format)
-    - Backlog updates
-    - Next session should (specific, actionable)
-    - Context notes (5-10 bullets of carry-forward knowledge)
+  standard:
+    - default for normal feature work
+    - medium scope, bounded risk, no release-critical surfaces
 
-Step 4: UPDATE BACKLOG
-  Edit docs/backlog-active.md — keep current milestone + 3-10 active items
-  Edit docs/backlog.md — full history/status updates
+  full:
+    - >8 files, or cross-cutting architecture changes
+    - schema migrations, external contract changes, auth/payment/security
+    - pre-release/pre-merge hardening or explicit user request
 
-Step 5: UPDATE SESSION CURSOR
-  Edit docs/.session-cursor.md:
-    - Mark current session done
-    - Write next session handover (specific enough for a fresh agent)
-    - Update recent decisions
-    - Update blockers
+Step 1: RUN MODE-SCOPED QUALITY CHECKS
+  lite:
+    - run smallest targeted checks proving changed behavior
+    - run full lint/typecheck/format only if signals indicate broad impact
 
-Step 6: WRITE TO AUTO MEMORY (if significant learnings)
-  If this session discovered patterns, debugging approaches, or architectural
-  insights: write concise notes to project auto memory
-    - MEMORY.md index for key facts
-    - Topic files for detailed notes
+  standard:
+    - run lint + typecheck + format check
 
-Step 7: UPDATE DIAGRAMS (if structural changes)
-  If the session changed component structure, API routes, data model, or
-  async flows: invoke diagram-syncer subagent or update diagrams manually
+  full:
+    - run lint + typecheck + format check + full test suite
+    - add targeted integration/e2e checks when relevant
 
-Step 8: COMMIT
+Step 2: RUN MODE-SCOPED REVIEW
+  lite:
+    - quick self-review (single highest-impact issue per dimension)
+
+  standard:
+    - self-review; invoke code-reviewer if >5 files or new abstractions
+
+  full:
+    - invoke code-reviewer subagent
+    - address BLOCK verdicts before commit
+
+Step 3: WRITE DOCUMENTATION (MINIMUM BY MODE)
+  Always:
+    - update docs/backlog-active.md
+    - update docs/.session-cursor.md
+
+  standard/full:
+    - create or update docs/sessions/YYYY-MM-DD.md (concise)
+
+  full:
+    - update docs/backlog.md if status/history changed materially
+    - update diagrams when structure changed
+
+Step 4: OPTIONAL KNOWLEDGE WRITES (TRIGGERED ONLY)
+  Write to auto memory only when durable, reusable learnings emerged:
+    - debugging method that repeatedly works
+    - architecture/pattern insight likely to recur
+  Otherwise skip.
+
+Step 5: COMMIT
   Stage and commit:
-    - Implementation commits first: feat: / fix: / refactor:
-    - Documentation commit last: docs: session NN close
+    - implementation commit(s) first
+    - docs commit when docs changed
 
-Step 9: REPORT
+Step 6: REPORT
   Present to user:
-    - Work completed
-    - Decisions recorded
-    - Review verdict (if review ran)
-    - Backlog changes
-    - What next session should pick up
+    - mode used (lite/standard/full) and why
+    - checks run
+    - docs updated
+    - remaining risks / next session handoff
 ```
+
+Principle: default to the lightest safe close mode. Escalate only when change
+risk justifies heavier process.
 
 ### 4.4 Hooks (Automated Enforcement)
 
@@ -415,7 +428,7 @@ If this file conflicts with repo state, follow the repo and update this file.
 {DATE} (Session NN closed)
 
 ## System Version
-ADOS v2
+ADOS v3
 
 ## Current Focus
 {What implementation plan or milestone is active}
@@ -638,10 +651,11 @@ model: sonnet
 ---
 
 You are a session-closing specialist. Produce:
-1. Session log in docs/sessions/YYYY-MM-DD.md (from template)
+1. Classify close mode (`lite|standard|full`) from diff/risk
 2. Updates to docs/.session-cursor.md (mark done, write handover)
 3. Updates to docs/backlog-active.md (small active slice)
-4. Updates to docs/backlog.md (full history/status changes)
+4. Session log in docs/sessions/YYYY-MM-DD.md for `standard|full`
+5. Updates to docs/backlog.md only when history/status changed materially
 
 Be concise. Carry-forward context notes: only what a fresh agent needs
 to continue, not a transcript. Decision IDs: D-YYYYMMDD-SNN-NN format.
@@ -679,7 +693,15 @@ Read + Write on `docs/diagrams/` only. Does not create new diagrams unless asked
 
 ### 8.1 Quality Gates
 
-Mandatory before every commit:
+Quality checks are mode-scoped (see §4.3):
+
+**lite**
+- Run the smallest targeted checks that prove the changed behavior.
+- Escalate to full lint/typecheck/format if there are broad-impact signals
+  (shared infra touched, widespread refactor, flaky signals).
+
+**standard**
+- Run:
 
 ```bash
 {lint command}           # ESLint / ruff / equivalent
@@ -687,26 +709,31 @@ Mandatory before every commit:
 {format check command}   # Prettier / black / equivalent
 ```
 
-No exceptions. Fix failures before committing. The agent does not skip gates
-to save time.
+**full**
+- Run standard gates plus full test suite and any relevant integration/e2e.
+
+Fix failures before committing. The agent should not skip checks needed for the
+chosen risk tier.
 
 ### 8.2 Code Review Workflow
 
-Integrated into session close protocol (Step 2):
+Integrated into session close protocol (Step 2) and calibrated by close mode:
 
-**For large changesets** (>5 files or new abstractions):
+**lite**
+- Quick self-review only.
+
+**standard**
+- Self-review by default.
+- Invoke code-reviewer when >5 files or new abstractions appear.
+
+**full**
 - Invoke code-reviewer subagent
-- Review is complexity-aware (see §7.2): full review for big changes,
-  light-touch for small changes
+- Review is complexity-aware (see §7.2)
 - Address any BLOCK verdicts before committing
 - CONCERNS are noted but don't block
 
-**For small changesets** (1-3 files, well-defined scope):
-- Lead agent does a quick self-review: one top issue per dimension
-- No subagent needed
-
-The changeset scale is auto-inferred from `git diff --stat`. The user does
-not need to classify changes as big or small.
+Mode selection is auto-inferred from `git diff --stat` + risk triggers unless
+the user explicitly chooses a mode.
 
 ### 8.3 Pre-Implementation Review
 
@@ -722,7 +749,8 @@ would have redirected.
 
 ### 8.4 Visual QA (for UI work)
 
-When the session involves UI changes, run visual QA before close:
+When the session involves UI changes, run visual QA before close for
+`standard|full` modes. In `lite`, run only the directly affected user path.
 
 1. **Responsive check** — screenshots at 375px, 768px, 1440px
 2. **Interaction flow** — click through the main user path
@@ -733,7 +761,8 @@ Uses MCP servers (Playwright, Chrome DevTools) when configured.
 ### 8.5 Diagram Sync
 
 After sessions that change structure (new services, changed APIs, modified
-data model), update relevant PlantUML diagrams. This can be:
+data model), update relevant PlantUML diagrams in `full` mode, or in
+`standard` when the change is clearly structural. This can be:
 - Delegated to the diagram-syncer subagent
 - Done manually by the lead agent
 - Skipped if no structural changes occurred (note in session log)
@@ -879,10 +908,13 @@ awaits confirmation.
 
 ### 12.2 `/project:session-end`
 
-Triggers the full close protocol (§4.3). Uses `context: fork` so the
-documentation generation doesn't pollute the implementation context.
-Runs gates, invokes review, generates log, updates cursor/backlog,
-commits.
+Triggers risk-tiered close protocol (§4.3). Classifies mode
+(`lite|standard|full`) from diff and risk triggers unless explicitly set:
+`/project:session-end lite`, `/project:session-end standard`,
+`/project:session-end full`.
+
+Uses `context: fork` when close tasks are read-heavy. Applies only the checks
+and documentation requirements required for the selected mode.
 
 ### 12.3 `/project:decision [title]`
 
@@ -997,6 +1029,9 @@ complete framework from scratch with `[ASK]` prompts for project-specific input.
 ```markdown
 # Session Log — YYYY-MM-DD
 
+## Close Mode
+`lite | standard | full` + brief rationale
+
 ## Objective
 {What this session set out to do}
 
@@ -1012,6 +1047,9 @@ complete framework from scratch with `[ASK]` prompts for project-specific input.
 ## Work Completed
 {Summary — not a transcript of every edit}
 
+## Checks Run
+- {targeted checks or full gates based on mode}
+
 ## Decisions
 - D-YYYYMMDD-SNN-NN: {Decision} — {rationale}
 
@@ -1020,6 +1058,11 @@ complete framework from scratch with `[ASK]` prompts for project-specific input.
 
 ## Review Verdict
 {PASS / CONCERNS / BLOCK — or "skipped: small changeset"}
+
+## Optional Heavy Sections (standard/full only)
+- Files Read (context-loading reads only)
+- Diagram updates
+- Auto-memory writes
 
 ## Next Session Should
 1. {Specific next step}
@@ -1132,14 +1175,16 @@ feat: | fix: | refactor: | docs: | test: | chore:
 
 ## Session Protocol
 - Start: `/project:session-start`
-- End: `/project:session-end`
+- End: `/project:session-end [lite|standard|full]`
 - Between tasks: `/clear`
 - Context pressure (>60%): summarise → `/clear` → continue
 
 ## Core Rules
 - Backlog-first: never start work without active backlog IDs
 - Evaluate before implementing: spec → scope → deps → test strategy
-- Quality gates before every commit: `{lint} && {typecheck} && {format}`
+- Select close mode by risk; default to the lightest safe mode
+- `standard` gates: `{lint} && {typecheck} && {format}`
+- `full` gates: standard + full test suite
 - Decisions get IDs: D-YYYYMMDD-SNN-NN format
 - Work on feature branches, not main
 - No net growth for always-loaded rules (add one, remove/shrink one)

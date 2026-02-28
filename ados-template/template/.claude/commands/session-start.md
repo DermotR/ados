@@ -8,4 +8,5 @@
    - cursor-specified packs only
 4. Open `docs/backlog.md` only when active slice is insufficient.
 5. Evaluate task (spec, scope, dependencies, test strategy).
-6. Present concise plan and wait for confirmation before coding.
+6. Propose expected close mode (`lite|standard|full`) based on risk.
+7. Present concise plan and wait for confirmation before coding.

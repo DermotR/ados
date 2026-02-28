@@ -1,5 +1,7 @@
 # ADOS Template Structure
 
+Version: ADOS template v3
+
 ```text
 ados-template/
 ├── copier.yml
@@ -45,3 +47,5 @@ ados-template/
 ```
 
 Design rule: keep always-loaded content small and stable; push detail to on-demand files.
+Operational rule: use risk-tier close modes (`lite|standard|full`) to avoid
+running heavy close steps on low-risk changes.

@@ -30,6 +30,7 @@ assert_template_result() {
 
   test -f "${dir}/CLAUDE.md"
   test -f "${dir}/docs/backlog-active.md"
+  test -f "${dir}/.claude/commands/session-end.md"
 
   if [[ -d "${dir}/.ados" ]]; then
     echo "Expected .ados to be removed after render in ${dir}" >&2
@@ -54,6 +55,16 @@ assert_template_result() {
   claudeline="$(wc -l < "${dir}/CLAUDE.md" | tr -d ' ')"
   if [[ "${claudeline}" -gt 80 ]]; then
     echo "CLAUDE.md exceeds 80 lines in ${dir}: ${claudeline}" >&2
+    exit 1
+  fi
+
+  if ! grep -q "/project:session-end \\[lite|standard|full\\]" "${dir}/CLAUDE.md"; then
+    echo "CLAUDE.md missing v3 close-mode protocol line in ${dir}" >&2
+    exit 1
+  fi
+
+  if ! grep -q "Close mode: \`lite | standard | full\`" "${dir}/.claude/commands/session-end.md"; then
+    echo "session-end command missing close-mode classifier in ${dir}" >&2
     exit 1
   fi
 }

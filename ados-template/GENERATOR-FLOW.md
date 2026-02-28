@@ -34,4 +34,5 @@ Rendering is handled by `template/.ados/render-ados.sh`.
 Print next steps:
 1. Fill first active backlog items.
 2. Run `/project:session-start`.
-3. Commit scaffold.
+3. Use `/project:session-end [lite|standard|full]` with risk-tier defaults.
+4. Commit scaffold.
