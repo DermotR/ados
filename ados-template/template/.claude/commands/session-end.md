@@ -20,7 +20,8 @@ Classifier:
    - `docs/backlog-active.md`
    - `docs/.session-cursor.md`
 5. `standard|full`: write `docs/sessions/YYYY-MM-DD.md`.
-6. `full` (or material status/history change): update `docs/backlog.md`.
-7. Write memory only if durable reusable learnings emerged.
-8. Update diagrams only when structural changes occurred.
-9. Commit and report mode/checks/docs/next handoff.
+6. `lite` + decision IDs recorded: create a minimal session log for auditability.
+7. `full` (or material status/history change): update `docs/backlog.md`.
+8. Write memory only if durable reusable learnings emerged.
+9. Update diagrams only when structural changes occurred.
+10. Commit and report mode/checks/docs/next handoff.

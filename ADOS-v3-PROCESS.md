@@ -346,6 +346,9 @@ Step 3: WRITE DOCUMENTATION (MINIMUM BY MODE)
   standard/full:
     - create or update docs/sessions/YYYY-MM-DD.md (concise)
 
+  lite with decision records:
+    - create a minimal session log entry for decision auditability
+
   full:
     - update docs/backlog.md if status/history changed materially
     - update diagrams when structure changed
@@ -380,7 +383,7 @@ to remember checklists.
 | Hook | Trigger | Purpose |
 |------|---------|---------|
 | `session-start.sh` | SessionStart | Warn about uncommitted changes, wrong branch |
-| `stop-validate.sh` | Stop | Warn if session log / cursor not updated |
+| `stop-validate.sh` | Stop | Warn if close artifacts are missing (cursor and/or session log) |
 | `pre-compact.sh` | PreCompact | Back up transcript before compaction |
 
 Hooks are registered in `.claude/settings.json`. They warn by default;
@@ -922,7 +925,8 @@ Records a decision inline during a session:
 1. Reads cursor for session number
 2. Assigns next decision ID
 3. Captures: decision, context, rationale, alternatives rejected
-4. Writes to session log, cursor, and auto memory
+4. Writes to cursor and auto memory; writes to session log when present.
+   If running `lite` without a log yet, create a minimal session log entry.
 5. Reports the decision ID
 
 ### 12.4 `/project:task-packet {PROJECT}-NNN`
@@ -955,8 +959,9 @@ Runs on session init. Checks for:
 **File**: `.claude/hooks/stop-validate.sh`
 
 Runs before session ends. Checks for:
-- Missing session log for today (warns)
-- Cursor not updated recently (warns)
+- Missing `docs/backlog-active.md` (warns)
+- Missing `docs/.session-cursor.md` (warns)
+- Neither session log for today nor a cursor update for today (warns)
 
 Can be upgraded to exit code 2 (blocking) once the team trusts the workflow.
 
@@ -1273,5 +1278,5 @@ Goal: compare normal run vs `--no-memory` for the same task.
      - remove non-essential `@imports`
      - shrink always-loaded docs
      - move detail from MEMORY.md into topic files
-5. Record result in session log context notes.
+5. Record result in session log context notes (or cursor notes in `lite` mode).
 ```

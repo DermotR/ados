@@ -9,6 +9,7 @@ Capture:
 - Alternatives rejected
 
 Write to:
-- Current session log (`## Decisions`)
-- `docs/.session-cursor.md` recent decisions
+- `docs/.session-cursor.md` recent decisions (always)
+- Current session log (`## Decisions`) when present
+  - If running `lite` and no session log exists yet, create a minimal log entry
 - memory `decisions.md` (if enabled)
