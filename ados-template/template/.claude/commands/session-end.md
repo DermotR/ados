@@ -6,6 +6,7 @@ Classifier:
 - `lite`: <=3 files, no schema/API/auth/payment/security/core-infra changes, no new abstraction.
 - `standard`: default mode for normal feature work.
 - `full`: >8 files, or cross-cutting/contract/security/migration/release-critical changes.
+- Escalate at least to `standard` for cross-workspace/package changes in monorepos.
 
 1. Determine close mode and state why.
 2. Run checks by mode:

@@ -11,3 +11,4 @@ Produce:
 3. Backlog active update (`docs/backlog-active.md`)
 4. Session log (`docs/sessions/YYYY-MM-DD.md`) for `standard|full`
 5. Backlog history update (`docs/backlog.md`) only when material history/status changed
+6. Include workspace scope notes for monorepo work

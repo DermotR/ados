@@ -986,6 +986,23 @@ Start with four files:
 
 This is enough for governed sessions. Add components as sessions accumulate.
 
+### 14.1 Monorepo Profile
+
+If the repository has workspace signals (`pnpm-workspace.yaml`, `turbo.json`,
+`nx.json`, `package.json.workspaces`, etc.):
+- Enable monorepo profile at init
+- Set workspace tool (pnpm/turbo/nx/lerna/rush/npm-workspaces)
+- Persist primary workspace scope in:
+  - `CLAUDE.md`
+  - `docs/context/core.md`
+  - `docs/.session-cursor.md`
+  - backlog item `Scope` fields
+
+Operationally:
+- Keep shared rules at root `CLAUDE.md`
+- Put package/app rules in path-scoped `CLAUDE.md` files
+- Escalate close mode to at least `standard` for cross-workspace changes
+
 ### Progressive Enhancement
 
 | After... | Add... |
@@ -995,6 +1012,7 @@ This is enough for governed sessions. Add components as sessions accumulate.
 | First milestone | Session log archiving (`docs/archive/`) |
 | First complex feature | Task packets and implementation plans |
 | Recurring review needs | Code-reviewer subagent |
+| First monorepo split | Enable workspace profile + path-scoped CLAUDE.md files |
 | Multiple domains | Directory-level CLAUDE.md files |
 | Auto memory enabled | Seed MEMORY.md from session log context notes |
 
@@ -1042,6 +1060,9 @@ complete framework from scratch with `[ASK]` prompts for project-specific input.
 
 ## Active Backlog IDs
 {PROJECT}-NNN
+
+## Workspace Scope
+{package/app/path or `.` for single-repo}
 
 ## Packs Loaded
 `core`, `pack-{x}`
@@ -1167,6 +1188,12 @@ If this file conflicts with repo state, follow the repo and update this file.
 ## Project Structure
 {5-10 line directory map}
 
+## Workspace Profile
+- Monorepo mode: enabled | disabled
+- Workspace tool: pnpm | turbo | nx | lerna | rush | npm-workspaces | none
+- Primary workspace scope: {path/glob}
+- In monorepos: keep shared rules in root and add path-scoped CLAUDE.md files
+
 ## Commands
 - `{build}`: Build
 - `{dev}`: Dev server
@@ -1236,6 +1263,7 @@ M{N}: {milestone name}
 ### {PROJECT}-NNN — {title}
 - Status: ready | in-progress | blocked
 - Priority: P0 | P1 | P2 | P3
+- Scope: {package/app/path}
 - Packs: core, pack-{x}
 - Acceptance Criteria:
   - [ ] {criterion 1}
@@ -1245,6 +1273,7 @@ M{N}: {milestone name}
 ### {PROJECT}-NNN — {title}
 - Status: ready | in-progress | blocked
 - Priority: P0 | P1 | P2 | P3
+- Scope: {package/app/path}
 - Packs: core, pack-{x}
 - Acceptance Criteria:
   - [ ] {criterion 1}

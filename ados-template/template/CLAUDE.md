@@ -12,6 +12,13 @@ __TECH_STACK__
 ## Project Structure
 __KEY_PATHS__
 
+## Workspace Profile
+- Monorepo mode: __MONOREPO_MODE__
+- Workspace tool: __WORKSPACE_TOOL__
+- Primary workspace scope: __WORKSPACE_SCOPE__
+- In monorepos: keep shared rules in root `CLAUDE.md`, add path-scoped rules in
+  `packages/*/CLAUDE.md` and `apps/**/CLAUDE.md`.
+
 ## Commands
 - `__BUILD_CMD__`: Build
 - `__DEV_CMD__`: Dev server

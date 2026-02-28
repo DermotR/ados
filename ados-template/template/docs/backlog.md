@@ -11,6 +11,7 @@
 - Status: ready
 - Priority: P1
 - Epic: E1
+- Scope: __WORKSPACE_SCOPE__
 - Packs: core
 - Acceptance Criteria:
   - [ ] Commands in `CLAUDE.md` are valid for this repo

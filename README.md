@@ -36,6 +36,9 @@ bash ~/tools/ados/ados-template/scripts/init-ados.sh . --force
 - Close sessions with `/project:session-end [lite|standard|full]` (default to lightest safe mode).
 - Commit the bootstrap files.
 
+Note: if monorepo signals are detected (`pnpm-workspace.yaml`, `turbo.json`,
+`nx.json`, `workspaces`), init applies a workspace-aware profile automatically.
+
 ## Repo Contents
 
 - `ADOS-v3-PROCESS.md`: current process reference and templates

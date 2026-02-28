@@ -49,3 +49,5 @@ ados-template/
 Design rule: keep always-loaded content small and stable; push detail to on-demand files.
 Operational rule: use risk-tier close modes (`lite|standard|full`) to avoid
 running heavy close steps on low-risk changes.
+Bootstrap rule: detect monorepos early and persist workspace tool/scope in
+`CLAUDE.md`, `docs/context/core.md`, and cursor/backlog templates.

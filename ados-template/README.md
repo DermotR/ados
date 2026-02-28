@@ -7,6 +7,7 @@ Lean bootstrap for the Agentic Development Operating System (ADOS) v3.
 - Lean always-loaded defaults (`CLAUDE.md`, `docs/.session-cursor.md`, `docs/context/core.md`)
 - Active backlog split (`docs/backlog-active.md` + `docs/backlog.md`)
 - Risk-tier session close workflow (`lite|standard|full`)
+- Monorepo auto-detection with workspace-aware prompts/defaults
 - Slash command templates and hook stubs
 - A guided initializer script for repo-specific values
 - Native Copier entrypoint (`copier.yml`)
@@ -42,12 +43,24 @@ bash path/to/ados-template/scripts/init-ados.sh \
   --key-paths "apps/web, packages/api, docs"
 ```
 
+Monorepo override mode:
+
+```bash
+bash path/to/ados-template/scripts/init-ados.sh \
+  --target . \
+  --non-interactive \
+  --monorepo true \
+  --workspace-tool pnpm \
+  --workspace-scope \"apps/*, packages/*\"
+```
+
 The script asks only for:
 - project name
 - project stage
 - tech stack
 - build/dev/lint/typecheck/format/test commands
 - key paths summary
+- monorepo profile (auto-detected, then prompted in interactive mode)
 
 Then it fills placeholders in:
 - `CLAUDE.md`

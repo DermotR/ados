@@ -52,6 +52,21 @@ key_paths:
   help: Key paths summary (one line)
   default: src/, tests/, docs/
 
+monorepo:
+  type: bool
+  help: Is this a monorepo?
+  default: false
+
+workspace_tool:
+  type: str
+  help: Workspace tool (used when monorepo=true)
+  default: pnpm
+
+workspace_scope:
+  type: str
+  help: Primary workspace scope (used when monorepo=true)
+  default: apps/*, packages/*
+
 _tasks:
   - |
     cat > .ados/.render-values <<'EOF_VALUES'
@@ -66,6 +81,9 @@ _tasks:
     TEST_CMD={{ test_cmd }}
     KEY_PATHS={{ key_paths }}
     AUDIT_DATE=
+    MONOREPO_MODE={{ "enabled" if monorepo else "disabled" }}
+    WORKSPACE_TOOL={{ workspace_tool }}
+    WORKSPACE_SCOPE={{ workspace_scope }}
     EOF_VALUES
   - bash .ados/render-ados.sh --values-file .ados/.render-values
   - rm -rf .ados

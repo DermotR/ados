@@ -9,6 +9,9 @@
 ## Active Backlog IDs
 {IDs}
 
+## Workspace Scope
+{package/app/path or `.` for single-repo}
+
 ## Packs Loaded
 `core`
 

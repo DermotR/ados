@@ -21,15 +21,19 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 cd "${REPO_ROOT}"
 
-echo "[1/5] Shell syntax checks"
+echo "[1/6] Shell syntax checks"
 bash -n ados-template/scripts/init-ados.sh
 bash -n ados-template/template/.ados/render-ados.sh
 
 assert_template_result() {
   local dir="$1"
+  local expected_mode="$2"
+  local expected_tool="$3"
 
   test -f "${dir}/CLAUDE.md"
   test -f "${dir}/docs/backlog-active.md"
+  test -f "${dir}/docs/context/core.md"
+  test -f "${dir}/docs/.session-cursor.md"
   test -f "${dir}/.claude/commands/session-end.md"
 
   if [[ -d "${dir}/.ados" ]]; then
@@ -67,14 +71,34 @@ assert_template_result() {
     echo "session-end command missing close-mode classifier in ${dir}" >&2
     exit 1
   fi
+
+  if ! grep -q "Monorepo mode: ${expected_mode}" "${dir}/CLAUDE.md"; then
+    echo "CLAUDE.md has unexpected monorepo mode in ${dir}" >&2
+    exit 1
+  fi
+
+  if ! grep -q "Monorepo mode: ${expected_mode}" "${dir}/docs/context/core.md"; then
+    echo "core.md has unexpected monorepo mode in ${dir}" >&2
+    exit 1
+  fi
+
+  if ! grep -q "Monorepo mode: ${expected_mode}" "${dir}/docs/.session-cursor.md"; then
+    echo "session-cursor has unexpected monorepo mode in ${dir}" >&2
+    exit 1
+  fi
+
+  if ! grep -q "Workspace tool: ${expected_tool}" "${dir}/CLAUDE.md"; then
+    echo "CLAUDE.md has unexpected workspace tool in ${dir}" >&2
+    exit 1
+  fi
 }
 
 cleanup() {
-  rm -rf "${TMP_INIT_DIR:-}" "${TMP_COPIER_DIR:-}"
+  rm -rf "${TMP_INIT_DIR:-}" "${TMP_MONO_DIR:-}" "${TMP_COPIER_DIR:-}"
 }
 trap cleanup EXIT
 
-echo "[2/5] init-ados non-interactive scaffold"
+echo "[2/6] init-ados non-interactive scaffold"
 TMP_INIT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ados-init-smoke.XXXXXX")"
 bash ados-template/scripts/init-ados.sh \
   --target "${TMP_INIT_DIR}" \
@@ -90,23 +114,41 @@ bash ados-template/scripts/init-ados.sh \
   --test-cmd "npm test" \
   --key-paths "src, docs" \
   --audit-date "2026-02-27" >/dev/null
-assert_template_result "${TMP_INIT_DIR}"
+assert_template_result "${TMP_INIT_DIR}" "disabled" "none"
 
-echo "[3/5] Copier availability check"
+echo "[3/6] init-ados monorepo auto-detection"
+TMP_MONO_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ados-mono-smoke.XXXXXX")"
+cat > "${TMP_MONO_DIR}/pnpm-workspace.yaml" <<'EOF_PNPM'
+packages:
+  - "apps/*"
+  - "packages/*"
+EOF_PNPM
+
+bash ados-template/scripts/init-ados.sh \
+  --target "${TMP_MONO_DIR}" \
+  --force \
+  --non-interactive \
+  --project-name "Mono Smoke Project" \
+  --project-stage "MVP" \
+  --tech-stack "TypeScript, pnpm workspace" \
+  --key-paths "apps, packages, docs" >/dev/null
+assert_template_result "${TMP_MONO_DIR}" "enabled" "pnpm"
+
+echo "[4/6] Copier availability check"
 if ! command -v copier >/dev/null 2>&1; then
   if [[ "${REQUIRE_COPIER}" -eq 1 ]]; then
     echo "Copier is required but not installed" >&2
     exit 1
   fi
   echo "Copier not installed; skipping copier smoke test"
-  echo "[4/5] Copier smoke test: skipped"
-  echo "[5/5] Result: PASS (without copier)"
+  echo "[5/6] Copier smoke test: skipped"
+  echo "[6/6] Result: PASS (without copier)"
   exit 0
 fi
 
-echo "[4/5] Copier scaffold"
+echo "[5/6] Copier scaffold"
 TMP_COPIER_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ados-copier-smoke.XXXXXX")"
 copier copy "${REPO_ROOT}/ados-template" "${TMP_COPIER_DIR}" --defaults --trust >/dev/null
-assert_template_result "${TMP_COPIER_DIR}"
+assert_template_result "${TMP_COPIER_DIR}" "disabled" "none"
 
-echo "[5/5] Result: PASS"
+echo "[6/6] Result: PASS"

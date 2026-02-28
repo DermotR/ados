@@ -21,8 +21,60 @@ Options:
   --test-cmd VALUE
   --key-paths VALUE
   --audit-date YYYY-MM-DD
+  --monorepo true|false      Force monorepo profile on/off
+  --workspace-tool VALUE     e.g. pnpm, turbo, nx, npm-workspaces
+  --workspace-scope VALUE    e.g. apps/*, packages/*
   -h, --help                 Show help
 USAGE
+}
+
+normalize_bool() {
+  local lower
+  lower="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
+  case "${lower}" in
+    true|1|yes|y) echo "true" ;;
+    false|0|no|n) echo "false" ;;
+    *)
+      echo "Invalid boolean value: $1 (use true|false)" >&2
+      exit 1
+      ;;
+  esac
+}
+
+detect_monorepo() {
+  local dir="$1"
+
+  [[ -f "${dir}/pnpm-workspace.yaml" ]] && return 0
+  [[ -f "${dir}/turbo.json" ]] && return 0
+  [[ -f "${dir}/nx.json" ]] && return 0
+  [[ -f "${dir}/lerna.json" ]] && return 0
+  [[ -f "${dir}/rush.json" ]] && return 0
+
+  if [[ -f "${dir}/package.json" ]] && grep -Eq '"workspaces"[[:space:]]*:' "${dir}/package.json"; then
+    return 0
+  fi
+
+  return 1
+}
+
+detect_workspace_tool() {
+  local dir="$1"
+
+  if [[ -f "${dir}/pnpm-workspace.yaml" ]]; then
+    echo "pnpm"
+  elif [[ -f "${dir}/turbo.json" ]]; then
+    echo "turbo"
+  elif [[ -f "${dir}/nx.json" ]]; then
+    echo "nx"
+  elif [[ -f "${dir}/lerna.json" ]]; then
+    echo "lerna"
+  elif [[ -f "${dir}/rush.json" ]]; then
+    echo "rush"
+  elif [[ -f "${dir}/package.json" ]] && grep -Eq '"workspaces"[[:space:]]*:' "${dir}/package.json"; then
+    echo "npm-workspaces"
+  else
+    echo "none"
+  fi
 }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -44,6 +96,9 @@ FORMAT_CMD=""
 TEST_CMD=""
 KEY_PATHS=""
 AUDIT_DATE=""
+MONOREPO_FLAG=""
+WORKSPACE_TOOL=""
+WORKSPACE_SCOPE=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -127,6 +182,24 @@ while [[ $# -gt 0 ]]; do
       INTERACTIVE=0
       shift 2
       ;;
+    --monorepo)
+      [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
+      MONOREPO_FLAG="$(normalize_bool "$2")"
+      INTERACTIVE=0
+      shift 2
+      ;;
+    --workspace-tool)
+      [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
+      WORKSPACE_TOOL="$2"
+      INTERACTIVE=0
+      shift 2
+      ;;
+    --workspace-scope)
+      [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
+      WORKSPACE_SCOPE="$2"
+      INTERACTIVE=0
+      shift 2
+      ;;
     -h|--help)
       usage
       exit 0
@@ -205,6 +278,44 @@ TEST_CMD="${TEST_CMD:-npm test}"
 KEY_PATHS="${KEY_PATHS:-src/, tests/, docs/}"
 AUDIT_DATE="${AUDIT_DATE:-$(date +%F)}"
 
+DETECTED_MONOREPO=false
+DETECTED_WORKSPACE_TOOL="none"
+if detect_monorepo "${TARGET_DIR}"; then
+  DETECTED_MONOREPO=true
+  DETECTED_WORKSPACE_TOOL="$(detect_workspace_tool "${TARGET_DIR}")"
+fi
+
+MONOREPO_MODE="disabled"
+if [[ -n "${MONOREPO_FLAG}" ]]; then
+  if [[ "${MONOREPO_FLAG}" == "true" ]]; then
+    MONOREPO_MODE="enabled"
+  fi
+elif [[ "${DETECTED_MONOREPO}" == "true" ]]; then
+  if [[ ${INTERACTIVE} -eq 1 ]]; then
+    use_mono=""
+    read -r -p "Monorepo signals detected (${DETECTED_WORKSPACE_TOOL}). Use monorepo profile? [Y/n]: " use_mono
+    use_mono="${use_mono:-Y}"
+    use_mono_lower="$(printf '%s' "${use_mono}" | tr '[:upper:]' '[:lower:]')"
+    if [[ "${use_mono_lower}" == "y" || "${use_mono_lower}" == "yes" ]]; then
+      MONOREPO_MODE="enabled"
+    fi
+  else
+    MONOREPO_MODE="enabled"
+  fi
+fi
+
+if [[ "${MONOREPO_MODE}" == "enabled" ]]; then
+  default_tool="${DETECTED_WORKSPACE_TOOL}"
+  [[ "${default_tool}" == "none" ]] && default_tool="pnpm"
+  prompt_if_missing WORKSPACE_TOOL "Workspace tool" "${default_tool}"
+  prompt_if_missing WORKSPACE_SCOPE "Primary workspace scope" "apps/*, packages/*"
+  WORKSPACE_TOOL="${WORKSPACE_TOOL:-${default_tool}}"
+  WORKSPACE_SCOPE="${WORKSPACE_SCOPE:-apps/*, packages/*}"
+else
+  WORKSPACE_TOOL="none"
+  WORKSPACE_SCOPE="."
+fi
+
 cp -R "${TEMPLATE_DIR}/." "${TARGET_DIR}/"
 
 if [[ ! -f "${TARGET_DIR}/.ados/render-ados.sh" ]]; then
@@ -230,6 +341,9 @@ FORMAT_CMD=${FORMAT_CMD}
 TEST_CMD=${TEST_CMD}
 KEY_PATHS=${KEY_PATHS}
 AUDIT_DATE=${AUDIT_DATE}
+MONOREPO_MODE=${MONOREPO_MODE}
+WORKSPACE_TOOL=${WORKSPACE_TOOL}
+WORKSPACE_SCOPE=${WORKSPACE_SCOPE}
 EOF_VALUES
 
 (
@@ -241,6 +355,7 @@ EOF_VALUES
 echo
 
 echo "ADOS scaffold initialized in: ${TARGET_DIR}"
+echo "Monorepo profile: ${MONOREPO_MODE} (tool=${WORKSPACE_TOOL}, scope=${WORKSPACE_SCOPE})"
 echo "Next steps:"
 echo "1) Fill docs/backlog-active.md with current milestone + 3-10 items."
 echo "2) Review CLAUDE.md command values and key paths."

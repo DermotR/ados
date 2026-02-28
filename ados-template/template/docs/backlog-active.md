@@ -11,6 +11,7 @@ M1: Foundation
 ### ITEM-001 - Initialize repo standards
 - Status: ready
 - Priority: P1
+- Scope: __WORKSPACE_SCOPE__
 - Packs: core
 - Acceptance Criteria:
   - [ ] Commands in `CLAUDE.md` are valid for this repo

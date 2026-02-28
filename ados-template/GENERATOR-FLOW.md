@@ -4,6 +4,7 @@
 - Copy `template/` into target project.
 - Abort if target is non-empty unless `--force` is set.
 - Alternative: use Copier (`copier copy ...`) with `copier.yml`.
+- Detect monorepo signals in target repo before rendering defaults.
 
 ## 2. Prompt (repo-specific only)
 - Project name
@@ -11,6 +12,7 @@
 - Tech stack summary
 - Commands: build/dev/lint/typecheck/format/test
 - Key paths summary
+- Monorepo profile (auto-detected; workspace tool/scope)
 
 This can run:
 - interactively (`init-ados.sh`)

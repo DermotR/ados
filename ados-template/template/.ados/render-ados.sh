@@ -18,8 +18,24 @@ Options:
   --test-cmd VALUE
   --key-paths VALUE
   --audit-date YYYY-MM-DD
+  --monorepo-mode VALUE     enabled|disabled
+  --workspace-tool VALUE
+  --workspace-scope VALUE
   -h, --help                Show help
 USAGE
+}
+
+normalize_mode() {
+  local lower
+  lower="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
+  case "${lower}" in
+    enabled|true|1|yes|y) echo "enabled" ;;
+    disabled|false|0|no|n) echo "disabled" ;;
+    *)
+      echo "Invalid monorepo mode: $1 (use enabled|disabled)" >&2
+      exit 1
+      ;;
+  esac
 }
 
 VALUES_FILE=""
@@ -34,6 +50,9 @@ FORMAT_CMD=""
 TEST_CMD=""
 KEY_PATHS=""
 AUDIT_DATE=""
+MONOREPO_MODE=""
+WORKSPACE_TOOL=""
+WORKSPACE_SCOPE=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -97,6 +116,21 @@ while [[ $# -gt 0 ]]; do
       AUDIT_DATE="$2"
       shift 2
       ;;
+    --monorepo-mode)
+      [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
+      MONOREPO_MODE="$(normalize_mode "$2")"
+      shift 2
+      ;;
+    --workspace-tool)
+      [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
+      WORKSPACE_TOOL="$2"
+      shift 2
+      ;;
+    --workspace-scope)
+      [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
+      WORKSPACE_SCOPE="$2"
+      shift 2
+      ;;
     -h|--help)
       usage
       exit 0
@@ -131,6 +165,9 @@ if [[ -n "${VALUES_FILE}" ]]; then
       TEST_CMD) TEST_CMD="${TEST_CMD:-$value}" ;;
       KEY_PATHS) KEY_PATHS="${KEY_PATHS:-$value}" ;;
       AUDIT_DATE) AUDIT_DATE="${AUDIT_DATE:-$value}" ;;
+      MONOREPO_MODE) MONOREPO_MODE="${MONOREPO_MODE:-$value}" ;;
+      WORKSPACE_TOOL) WORKSPACE_TOOL="${WORKSPACE_TOOL:-$value}" ;;
+      WORKSPACE_SCOPE) WORKSPACE_SCOPE="${WORKSPACE_SCOPE:-$value}" ;;
     esac
   done < "${VALUES_FILE}"
 fi
@@ -146,6 +183,16 @@ FORMAT_CMD="${FORMAT_CMD:-npm run format:check}"
 TEST_CMD="${TEST_CMD:-npm test}"
 KEY_PATHS="${KEY_PATHS:-src/, tests/, docs/}"
 AUDIT_DATE="${AUDIT_DATE:-$(date +%F)}"
+MONOREPO_MODE="${MONOREPO_MODE:-disabled}"
+MONOREPO_MODE="$(normalize_mode "${MONOREPO_MODE}")"
+
+if [[ "${MONOREPO_MODE}" == "enabled" ]]; then
+  WORKSPACE_TOOL="${WORKSPACE_TOOL:-pnpm}"
+  WORKSPACE_SCOPE="${WORKSPACE_SCOPE:-apps/*, packages/*}"
+else
+  WORKSPACE_TOOL="none"
+  WORKSPACE_SCOPE="."
+fi
 
 escape() {
   printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'
@@ -162,6 +209,9 @@ FORMAT_CMD_E="$(escape "${FORMAT_CMD}")"
 TEST_CMD_E="$(escape "${TEST_CMD}")"
 KEY_PATHS_E="$(escape "${KEY_PATHS}")"
 AUDIT_DATE_E="$(escape "${AUDIT_DATE}")"
+MONOREPO_MODE_E="$(escape "${MONOREPO_MODE}")"
+WORKSPACE_TOOL_E="$(escape "${WORKSPACE_TOOL}")"
+WORKSPACE_SCOPE_E="$(escape "${WORKSPACE_SCOPE}")"
 
 render_file() {
   local path="$1"
@@ -178,6 +228,9 @@ render_file() {
     -e "s/__TEST_CMD__/${TEST_CMD_E}/g" \
     -e "s/__KEY_PATHS__/${KEY_PATHS_E}/g" \
     -e "s/__AUDIT_DATE__/${AUDIT_DATE_E}/g" \
+    -e "s/__MONOREPO_MODE__/${MONOREPO_MODE_E}/g" \
+    -e "s/__WORKSPACE_TOOL__/${WORKSPACE_TOOL_E}/g" \
+    -e "s/__WORKSPACE_SCOPE__/${WORKSPACE_SCOPE_E}/g" \
     "${path}"
   rm -f "${path}.bak"
 }
@@ -186,6 +239,7 @@ render_file "CLAUDE.md"
 render_file "docs/.session-cursor.md"
 render_file "docs/context/core.md"
 render_file "docs/backlog-active.md"
+render_file "docs/backlog.md"
 
 CLAUDE_LINES="$(wc -l < "CLAUDE.md" | tr -d ' ')"
 if [[ "${CLAUDE_LINES}" -gt 80 ]]; then
