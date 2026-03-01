@@ -12,3 +12,5 @@ Produce:
 4. Session log (`docs/sessions/YYYY-MM-DD.md`) for `standard|full`
 5. Backlog history update (`docs/backlog.md`) only when material history/status changed
 6. Include workspace scope notes for monorepo work
+7. When requirements/rules changed, update `docs/spec/use-cases.md` and/or `docs/spec/business-rules.md`
+8. When structure changed, update `docs/spec/diagrams/`

@@ -88,9 +88,12 @@ docs/
 │   └── YYYY-MM-DD.md                        # Session logs (keep last 5 active)
 ├── packets/
 │   └── {PROJECT}-NNN.md                     # Task breakdowns
-├── diagrams/
-│   └── *.puml                               # PlantUML diagrams
-├── spec/                                    # Product specification
+├── spec/                                    # Product specification and business constraints
+│   ├── product-overview.md                  # Problem statement and outcomes
+│   ├── business-rules.md                    # Enforceable rule source of truth
+│   ├── use-cases.md                         # User/system interaction flows
+│   └── diagrams/
+│       └── *.puml                           # PlantUML diagrams
 └── archive/
     ├── README.md                            # Archive policy
     ├── sessions/M{N}/                       # Rotated session logs per milestone
@@ -221,6 +224,9 @@ Step 3: LOAD CONTEXT PACKS
   Read docs/context/core.md (always)
   Read docs/backlog-active.md (always, keep small)
   Read cursor-specified packs only
+  Read docs/spec/product-overview.md + docs/spec/use-cases.md when validating
+    requirements or UX flow
+  Read docs/spec/business-rules.md when interpreting/enforcing business rules
   Open docs/backlog.md only if active slice is insufficient
   Report what was loaded and estimated context usage
 
@@ -271,6 +277,8 @@ When a significant choice is made (technology, approach, rejected alternatives):
 - Record immediately using `/project:decision [title]`
 - Format: `D-YYYYMMDD-SNN-NN` (date, session number, sequence)
 - Captured in: session log (authoritative) + cursor (cross-session) + auto memory (discoverable)
+- If the decision changes requirement behavior, update `docs/spec/use-cases.md`
+  and/or `docs/spec/business-rules.md`
 
 **Confirm-before-continuing**
 For multi-step work: confirm direction with the user after completing the first
@@ -671,7 +679,7 @@ Update your memory with documentation patterns you discover.
 **File**: `.claude/agents/diagram-syncer.md`
 
 Reviews git diff and updates PlantUML diagrams when structural changes occur.
-Read + Write on `docs/diagrams/` only. Does not create new diagrams unless asked.
+Read + Write on `docs/spec/diagrams/` only. Does not create new diagrams unless asked.
 
 ### 7.5 Subagent Design Principles
 
@@ -764,7 +772,7 @@ Uses MCP servers (Playwright, Chrome DevTools) when configured.
 ### 8.5 Diagram Sync
 
 After sessions that change structure (new services, changed APIs, modified
-data model), update relevant PlantUML diagrams in `full` mode, or in
+data model), update relevant PlantUML diagrams in `docs/spec/diagrams/` in `full` mode, or in
 `standard` when the change is clearly structural. This can be:
 - Delegated to the diagram-syncer subagent
 - Done manually by the lead agent
@@ -865,6 +873,18 @@ that follows established convention.
 The session log is the source of truth. The cursor and memory are caches
 for convenience.
 
+### 10.4 Where Requirements and Rules Live
+
+- `docs/spec/product-overview.md` defines the problem, user segments, outcomes,
+  and explicit out-of-scope boundaries.
+- `docs/spec/use-cases.md` defines canonical user/system flows and links to
+  applicable business rules.
+- `docs/spec/business-rules.md` is the enforceable rule source of truth.
+- `docs/spec/diagrams/*.puml` captures structural models that support the spec.
+
+When implementation or decisions change requirement behavior, update the
+corresponding spec file in the same session.
+
 ---
 
 ## 11. Archive Policy
@@ -927,13 +947,16 @@ Records a decision inline during a session:
 3. Captures: decision, context, rationale, alternatives rejected
 4. Writes to cursor and auto memory; writes to session log when present.
    If running `lite` without a log yet, create a minimal session log entry.
-5. Reports the decision ID
+5. If requirement behavior changed, updates relevant spec files:
+   `docs/spec/business-rules.md` and/or `docs/spec/use-cases.md`
+6. Reports the decision ID
 
 ### 12.4 `/project:task-packet {PROJECT}-NNN`
 
 Generates a structured task breakdown for a backlog item before implementation.
-Reads the backlog item, relevant packs, and spec, then produces a packet in
-`docs/packets/`.
+Reads the backlog item, relevant packs, and spec files
+(`docs/spec/product-overview.md`, `docs/spec/use-cases.md`,
+`docs/spec/business-rules.md`), then produces a packet in `docs/packets/`.
 
 ### 12.5 `/project:baseline-check`
 
@@ -978,11 +1001,14 @@ so no conversation history is permanently lost.
 
 ### Minimum Viable ADOS
 
-Start with four files:
+Start with seven files:
 1. `CLAUDE.md` — project overview, commands, core rules, engineering preferences
 2. `docs/.session-cursor.md` — what's next, what's done
 3. `docs/backlog-active.md` — current milestone + 3-10 active items
 4. `docs/backlog.md` — full backlog history
+5. `docs/spec/product-overview.md` — problem and intended outcomes
+6. `docs/spec/use-cases.md` — canonical interaction flows
+7. `docs/spec/business-rules.md` — enforceable business constraints
 
 This is enough for governed sessions. Add components as sessions accumulate.
 
@@ -1007,6 +1033,7 @@ Operationally:
 
 | After... | Add... |
 |----------|--------|
+| Project bootstrap | Fill `docs/spec/` baseline (overview, first use cases, first business rules) |
 | 3 sessions | Context packs (`docs/context/`) — pack summaries emerge from session notes |
 | 5 sessions | Slash commands — start/end protocols stabilise enough to codify |
 | First milestone | Session log archiving (`docs/archive/`) |

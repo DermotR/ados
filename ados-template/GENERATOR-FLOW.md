@@ -12,6 +12,7 @@
 - Tech stack summary
 - Commands: build/dev/lint/typecheck/format/test
 - Key paths summary
+- Product overview (short problem statement)
 - Monorepo profile (auto-detected; workspace tool/scope)
 
 This can run:
@@ -25,6 +26,9 @@ Replace placeholders in:
 - `docs/.session-cursor.md`
 - `docs/context/core.md`
 - `docs/backlog-active.md`
+- `docs/spec/product-overview.md`
+- `docs/spec/business-rules.md`
+- `docs/spec/use-cases.md`
 
 Rendering is handled by `template/.ados/render-ados.sh`.
 
@@ -35,6 +39,7 @@ Rendering is handled by `template/.ados/render-ados.sh`.
 ## 5. Hand-off
 Print next steps:
 1. Fill first active backlog items.
-2. Run `/project:session-start`.
-3. Use `/project:session-end [lite|standard|full]` with risk-tier defaults.
-4. Commit scaffold.
+2. Fill `docs/spec/` baseline (use cases + business rules).
+3. Run `/project:session-start`.
+4. Use `/project:session-end [lite|standard|full]` with risk-tier defaults.
+5. Commit scaffold.

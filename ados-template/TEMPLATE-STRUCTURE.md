@@ -10,7 +10,8 @@ ados-template/
 ├── TEMPLATE-STRUCTURE.md
 ├── GENERATOR-FLOW.md
 ├── scripts/
-│   └── init-ados.sh
+│   ├── init-ados.sh
+│   └── smoke-test.sh
 └── template/
     ├── .ados/
     │   └── render-ados.sh
@@ -41,8 +42,10 @@ ados-template/
         ├── planning/IMPLEMENTATION-PLAN-TEMPLATE.md
         ├── sessions/SESSION-TEMPLATE.md
         ├── packets/.gitkeep
-        ├── diagrams/.gitkeep
-        ├── spec/.gitkeep
+        ├── spec/product-overview.md
+        ├── spec/business-rules.md
+        ├── spec/use-cases.md
+        ├── spec/diagrams/.gitkeep
         └── archive/README.md
 ```
 
@@ -51,3 +54,5 @@ Operational rule: use risk-tier close modes (`lite|standard|full`) to avoid
 running heavy close steps on low-risk changes.
 Bootstrap rule: detect monorepos early and persist workspace tool/scope in
 `CLAUDE.md`, `docs/context/core.md`, and cursor/backlog templates.
+Spec rule: keep requirements in `docs/spec/` and keep structural diagrams in
+`docs/spec/diagrams/`.

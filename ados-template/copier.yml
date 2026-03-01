@@ -52,6 +52,11 @@ key_paths:
   help: Key paths summary (one line)
   default: src/, tests/, docs/
 
+product_overview:
+  type: str
+  help: Short problem statement for product overview
+  default: Describe the problem this product solves.
+
 monorepo:
   type: bool
   help: Is this a monorepo?
@@ -80,6 +85,7 @@ _tasks:
     FORMAT_CMD={{ format_cmd }}
     TEST_CMD={{ test_cmd }}
     KEY_PATHS={{ key_paths }}
+    PRODUCT_OVERVIEW={{ product_overview }}
     AUDIT_DATE=
     MONOREPO_MODE={{ "enabled" if monorepo else "disabled" }}
     WORKSPACE_TOOL={{ workspace_tool }}

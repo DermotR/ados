@@ -21,7 +21,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 cd "${REPO_ROOT}"
 
-echo "[1/6] Shell syntax checks"
+echo "[1/7] Shell syntax checks"
 bash -n ados-template/scripts/init-ados.sh
 bash -n ados-template/template/.ados/render-ados.sh
 
@@ -35,9 +35,18 @@ assert_template_result() {
   test -f "${dir}/docs/context/core.md"
   test -f "${dir}/docs/.session-cursor.md"
   test -f "${dir}/.claude/commands/session-end.md"
+  test -f "${dir}/docs/spec/product-overview.md"
+  test -f "${dir}/docs/spec/business-rules.md"
+  test -f "${dir}/docs/spec/use-cases.md"
+  test -d "${dir}/docs/spec/diagrams"
 
   if [[ -d "${dir}/.ados" ]]; then
     echo "Expected .ados to be removed after render in ${dir}" >&2
+    exit 1
+  fi
+
+  if [[ -d "${dir}/docs/diagrams" ]]; then
+    echo "Legacy docs/diagrams directory should not exist in ${dir}" >&2
     exit 1
   fi
 
@@ -94,11 +103,11 @@ assert_template_result() {
 }
 
 cleanup() {
-  rm -rf "${TMP_INIT_DIR:-}" "${TMP_MONO_DIR:-}" "${TMP_COPIER_DIR:-}"
+  rm -rf "${TMP_INIT_DIR:-}" "${TMP_MONO_DIR:-}" "${TMP_MIGRATE_DIR:-}" "${TMP_COPIER_DIR:-}"
 }
 trap cleanup EXIT
 
-echo "[2/6] init-ados non-interactive scaffold"
+echo "[2/7] init-ados non-interactive scaffold"
 TMP_INIT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ados-init-smoke.XXXXXX")"
 bash ados-template/scripts/init-ados.sh \
   --target "${TMP_INIT_DIR}" \
@@ -116,7 +125,7 @@ bash ados-template/scripts/init-ados.sh \
   --audit-date "2026-02-27" >/dev/null
 assert_template_result "${TMP_INIT_DIR}" "disabled" "none"
 
-echo "[3/6] init-ados monorepo auto-detection"
+echo "[3/7] init-ados monorepo auto-detection"
 TMP_MONO_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ados-mono-smoke.XXXXXX")"
 cat > "${TMP_MONO_DIR}/pnpm-workspace.yaml" <<'EOF_PNPM'
 packages:
@@ -134,21 +143,42 @@ bash ados-template/scripts/init-ados.sh \
   --key-paths "apps, packages, docs" >/dev/null
 assert_template_result "${TMP_MONO_DIR}" "enabled" "pnpm"
 
-echo "[4/6] Copier availability check"
+echo "[4/7] init-ados legacy diagrams migration"
+TMP_MIGRATE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ados-migrate-smoke.XXXXXX")"
+mkdir -p "${TMP_MIGRATE_DIR}/docs/diagrams"
+cat > "${TMP_MIGRATE_DIR}/docs/diagrams/system-context.puml" <<'EOF_PUML'
+@startuml
+actor User
+User -> System : uses
+@enduml
+EOF_PUML
+
+bash ados-template/scripts/init-ados.sh \
+  --target "${TMP_MIGRATE_DIR}" \
+  --force \
+  --non-interactive \
+  --project-name "Migrate Smoke Project" \
+  --project-stage "MVP" \
+  --tech-stack "TypeScript, Node" \
+  --key-paths "src, docs" >/dev/null
+assert_template_result "${TMP_MIGRATE_DIR}" "disabled" "none"
+test -f "${TMP_MIGRATE_DIR}/docs/spec/diagrams/system-context.puml"
+
+echo "[5/7] Copier availability check"
 if ! command -v copier >/dev/null 2>&1; then
   if [[ "${REQUIRE_COPIER}" -eq 1 ]]; then
     echo "Copier is required but not installed" >&2
     exit 1
   fi
   echo "Copier not installed; skipping copier smoke test"
-  echo "[5/6] Copier smoke test: skipped"
-  echo "[6/6] Result: PASS (without copier)"
+  echo "[6/7] Copier smoke test: skipped"
+  echo "[7/7] Result: PASS (without copier)"
   exit 0
 fi
 
-echo "[5/6] Copier scaffold"
+echo "[6/7] Copier scaffold"
 TMP_COPIER_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ados-copier-smoke.XXXXXX")"
 copier copy "${REPO_ROOT}/ados-template" "${TMP_COPIER_DIR}" --defaults --trust >/dev/null
 assert_template_result "${TMP_COPIER_DIR}" "disabled" "none"
 
-echo "[6/6] Result: PASS"
+echo "[7/7] Result: PASS"

@@ -11,6 +11,7 @@ Lean bootstrap for the Agentic Development Operating System (ADOS) v3.
 - Slash command templates and hook stubs
 - A guided initializer script for repo-specific values
 - Native Copier entrypoint (`copier.yml`)
+- Spec scaffolding in `docs/spec/` (product overview, use cases, business rules, diagrams)
 
 ## Quick start options
 1. GitHub template repo: click `Use this template`.
@@ -40,7 +41,8 @@ bash path/to/ados-template/scripts/init-ados.sh \
   --typecheck-cmd "pnpm typecheck" \
   --format-cmd "pnpm format:check" \
   --test-cmd "pnpm test" \
-  --key-paths "apps/web, packages/api, docs"
+  --key-paths "apps/web, packages/api, docs" \
+  --product-overview "Briefly describe the problem this product solves"
 ```
 
 Monorepo override mode:
@@ -60,6 +62,7 @@ The script asks only for:
 - tech stack
 - build/dev/lint/typecheck/format/test commands
 - key paths summary
+- product overview
 - monorepo profile (auto-detected, then prompted in interactive mode)
 
 Then it fills placeholders in:
@@ -67,11 +70,19 @@ Then it fills placeholders in:
 - `docs/.session-cursor.md`
 - `docs/context/core.md`
 - `docs/backlog-active.md`
+- `docs/spec/product-overview.md`
+- `docs/spec/business-rules.md`
+- `docs/spec/use-cases.md`
 
 The scaffold defaults to risk-tier session close behavior:
 - `lite`: small low-risk changes (default when safe)
 - `standard`: normal feature work
 - `full`: high-risk/cross-cutting/release-critical work
+
+Spec location defaults:
+- Requirements and scope: `docs/spec/product-overview.md` + `docs/spec/use-cases.md`
+- Business constraints: `docs/spec/business-rules.md`
+- PlantUML diagrams: `docs/spec/diagrams/`
 
 ## Guardrails
 - `TEMPLATE_VERSION` is included for upgrade tracking.

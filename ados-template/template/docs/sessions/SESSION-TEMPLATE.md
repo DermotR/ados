@@ -29,7 +29,8 @@
 
 ## Optional Heavy Sections (standard/full only)
 - Files read summary
-- Diagram updates
+- Spec updates (`docs/spec/product-overview.md`, `docs/spec/use-cases.md`, `docs/spec/business-rules.md`)
+- Diagram updates (`docs/spec/diagrams/`)
 - Auto-memory updates
 
 ## Next Session Should

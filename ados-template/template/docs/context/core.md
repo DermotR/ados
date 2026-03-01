@@ -19,6 +19,8 @@ If this file conflicts with repo state, follow the repo and update this file.
 ## Guardrails
 - Use active backlog slice before opening full backlog.
 - Keep always-loaded docs lean and stable.
+- Treat `docs/spec/` as requirement source-of-truth:
+  `product-overview.md`, `use-cases.md`, `business-rules.md`, `diagrams/`.
 - Use `lite` session close by default; escalate to `standard|full` on risk triggers.
 - In monorepos, escalate at least to `standard` when a change spans multiple workspaces.
 - If instructions conflict with code, follow code and update docs.

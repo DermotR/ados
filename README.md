@@ -31,6 +31,7 @@ bash ~/tools/ados/ados-template/scripts/init-ados.sh . --force
 
 6. Complete setup:
 - Fill `docs/backlog-active.md` with current milestone + 3-10 active items.
+- Fill `docs/spec/product-overview.md`, `docs/spec/use-cases.md`, and `docs/spec/business-rules.md`.
 - Review `CLAUDE.md` commands and key paths.
 - Start with `/project:session-start`.
 - Close sessions with `/project:session-end [lite|standard|full]` (default to lightest safe mode).
@@ -38,6 +39,8 @@ bash ~/tools/ados/ados-template/scripts/init-ados.sh . --force
 
 Note: if monorepo signals are detected (`pnpm-workspace.yaml`, `turbo.json`,
 `nx.json`, `workspaces`), init applies a workspace-aware profile automatically.
+If an existing repo still has `docs/diagrams/`, init migrates those diagrams to
+`docs/spec/diagrams/`.
 
 ## Repo Contents
 
@@ -55,7 +58,8 @@ bash ~/tools/ados/ados-template/scripts/init-ados.sh \
   --non-interactive \
   --project-name "My Project" \
   --project-stage "MVP" \
-  --tech-stack "TypeScript, Next.js, Postgres"
+  --tech-stack "TypeScript, Next.js, Postgres" \
+  --product-overview "Briefly describe the problem this product solves"
 ```
 
 Copier alternative:

@@ -20,6 +20,7 @@ Options:
   --format-cmd VALUE
   --test-cmd VALUE
   --key-paths VALUE
+  --product-overview VALUE  Short problem statement for docs/spec/product-overview.md
   --audit-date YYYY-MM-DD
   --monorepo true|false      Force monorepo profile on/off
   --workspace-tool VALUE     e.g. pnpm, turbo, nx, npm-workspaces
@@ -77,6 +78,41 @@ detect_workspace_tool() {
   fi
 }
 
+migrate_legacy_diagrams() {
+  local target="$1"
+  local legacy_dir="${target}/docs/diagrams"
+  local spec_diagrams_dir="${target}/docs/spec/diagrams"
+
+  [[ -d "${legacy_dir}" ]] || return 0
+
+  mkdir -p "${spec_diagrams_dir}"
+
+  local moved=0
+  shopt -s nullglob dotglob
+  for entry in "${legacy_dir}"/*; do
+    [[ -e "${entry}" ]] || continue
+    local name
+    name="$(basename "${entry}")"
+    [[ "${name}" == ".gitkeep" ]] && continue
+
+    if [[ -e "${spec_diagrams_dir}/${name}" ]]; then
+      local stamp
+      stamp="$(date +%s)"
+      mv "${entry}" "${spec_diagrams_dir}/${name}.migrated-${stamp}"
+    else
+      mv "${entry}" "${spec_diagrams_dir}/${name}"
+    fi
+    moved=1
+  done
+  shopt -u nullglob dotglob
+
+  rmdir "${legacy_dir}" 2>/dev/null || true
+
+  if [[ "${moved}" -eq 1 ]]; then
+    echo "Migrated legacy diagrams: docs/diagrams -> docs/spec/diagrams"
+  fi
+}
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_DIR="${SCRIPT_DIR}/../template"
 
@@ -95,6 +131,7 @@ TYPECHECK_CMD=""
 FORMAT_CMD=""
 TEST_CMD=""
 KEY_PATHS=""
+PRODUCT_OVERVIEW=""
 AUDIT_DATE=""
 MONOREPO_FLAG=""
 WORKSPACE_TOOL=""
@@ -173,6 +210,12 @@ while [[ $# -gt 0 ]]; do
     --key-paths)
       [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
       KEY_PATHS="$2"
+      INTERACTIVE=0
+      shift 2
+      ;;
+    --product-overview)
+      [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
+      PRODUCT_OVERVIEW="$2"
       INTERACTIVE=0
       shift 2
       ;;
@@ -264,6 +307,7 @@ prompt_if_missing TYPECHECK_CMD "Typecheck command" "npm run typecheck"
 prompt_if_missing FORMAT_CMD "Format-check command" "npm run format:check"
 prompt_if_missing TEST_CMD "Test command" "npm test"
 prompt_if_missing KEY_PATHS "Key paths summary (one line)" "src/, tests/, docs/"
+prompt_if_missing PRODUCT_OVERVIEW "Product overview (short problem statement)" "Describe the problem this product solves."
 prompt_if_missing AUDIT_DATE "Audit date (YYYY-MM-DD)" "$(date +%F)"
 
 PROJECT_NAME="${PROJECT_NAME:-New Project}"
@@ -276,6 +320,7 @@ TYPECHECK_CMD="${TYPECHECK_CMD:-npm run typecheck}"
 FORMAT_CMD="${FORMAT_CMD:-npm run format:check}"
 TEST_CMD="${TEST_CMD:-npm test}"
 KEY_PATHS="${KEY_PATHS:-src/, tests/, docs/}"
+PRODUCT_OVERVIEW="${PRODUCT_OVERVIEW:-Describe the problem this product solves.}"
 AUDIT_DATE="${AUDIT_DATE:-$(date +%F)}"
 
 DETECTED_MONOREPO=false
@@ -317,6 +362,7 @@ else
 fi
 
 cp -R "${TEMPLATE_DIR}/." "${TARGET_DIR}/"
+migrate_legacy_diagrams "${TARGET_DIR}"
 
 if [[ ! -f "${TARGET_DIR}/.ados/render-ados.sh" ]]; then
   echo "Expected helper missing: ${TARGET_DIR}/.ados/render-ados.sh" >&2
@@ -340,6 +386,7 @@ TYPECHECK_CMD=${TYPECHECK_CMD}
 FORMAT_CMD=${FORMAT_CMD}
 TEST_CMD=${TEST_CMD}
 KEY_PATHS=${KEY_PATHS}
+PRODUCT_OVERVIEW=${PRODUCT_OVERVIEW}
 AUDIT_DATE=${AUDIT_DATE}
 MONOREPO_MODE=${MONOREPO_MODE}
 WORKSPACE_TOOL=${WORKSPACE_TOOL}
@@ -358,6 +405,7 @@ echo "ADOS scaffold initialized in: ${TARGET_DIR}"
 echo "Monorepo profile: ${MONOREPO_MODE} (tool=${WORKSPACE_TOOL}, scope=${WORKSPACE_SCOPE})"
 echo "Next steps:"
 echo "1) Fill docs/backlog-active.md with current milestone + 3-10 items."
-echo "2) Review CLAUDE.md command values and key paths."
-echo "3) Run /project:session-start, then close with /project:session-end [lite|standard|full]."
-echo "4) Commit bootstrap files."
+echo "2) Fill docs/spec/product-overview.md, docs/spec/use-cases.md, and docs/spec/business-rules.md."
+echo "3) Review CLAUDE.md command values and key paths."
+echo "4) Run /project:session-start, then close with /project:session-end [lite|standard|full]."
+echo "5) Commit bootstrap files."

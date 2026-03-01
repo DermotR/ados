@@ -24,5 +24,5 @@ Classifier:
 6. `lite` + decision IDs recorded: create a minimal session log for auditability.
 7. `full` (or material status/history change): update `docs/backlog.md`.
 8. Write memory only if durable reusable learnings emerged.
-9. Update diagrams only when structural changes occurred.
+9. Update `docs/spec/diagrams/` only when structural changes occurred.
 10. Commit and report mode/checks/docs/next handoff.

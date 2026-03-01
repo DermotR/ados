@@ -15,6 +15,8 @@ M1: Foundation
 - Packs: core
 - Acceptance Criteria:
   - [ ] Commands in `CLAUDE.md` are valid for this repo
+  - [ ] `docs/spec/product-overview.md` reflects this project
+  - [ ] First real use case and business rule are drafted in `docs/spec/`
   - [ ] First real project backlog item is defined
 - Notes/Dependencies: none
 

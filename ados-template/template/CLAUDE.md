@@ -40,6 +40,8 @@ feat: | fix: | refactor: | docs: | test: | chore:
 - Backlog-first: never start work without active backlog IDs
 - Load `docs/backlog-active.md` before `docs/backlog.md`
 - Evaluate before implementing: spec -> scope -> dependencies -> test strategy
+- Requirements live in `docs/spec/product-overview.md` + `docs/spec/use-cases.md`
+- Business constraints live in `docs/spec/business-rules.md`
 - Select close mode by risk; default to the lightest safe mode
 - `standard` gates: `__LINT_CMD__ && __TYPECHECK_CMD__ && __FORMAT_CMD__`
 - `full` gates: standard + full test suite (`__TEST_CMD__`)
@@ -59,6 +61,7 @@ feat: | fix: | refactor: | docs: | test: | chore:
 - Read `docs/.session-cursor.md`
 - Read `docs/context/core.md`
 - Read `docs/backlog-active.md`
+- Read `docs/spec/*` when requirements, UX flow, or business rules are in scope
 - Open `docs/backlog.md` only if active slice is insufficient
 - Scan directories before opening many files
 

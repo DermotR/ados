@@ -6,6 +6,8 @@
    - `docs/context/core.md`
    - `docs/backlog-active.md`
    - cursor-specified packs only
+   - `docs/spec/product-overview.md` + `docs/spec/use-cases.md` when validating requirements or UX flow
+   - `docs/spec/business-rules.md` when decisions involve rule interpretation/enforcement
    - nearest path-scoped `CLAUDE.md` when working in monorepos
 4. Open `docs/backlog.md` only when active slice is insufficient.
 5. Confirm workspace scope for this task (package/app/path) in monorepos.
