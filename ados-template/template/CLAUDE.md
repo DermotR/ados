@@ -4,7 +4,7 @@ Last audited: __AUDIT_DATE__
 If this file conflicts with repo state, follow the repo and update this file.
 
 ## Overview
-This project is in __PROJECT_STAGE__. Keep implementation aligned with backlog IDs and session protocol.
+This project is in __PROJECT_STAGE__. Use pack-first documentation and session protocol.
 
 ## Tech Stack
 __TECH_STACK__
@@ -16,8 +16,6 @@ __KEY_PATHS__
 - Monorepo mode: __MONOREPO_MODE__
 - Workspace tool: __WORKSPACE_TOOL__
 - Primary workspace scope: __WORKSPACE_SCOPE__
-- In monorepos: keep shared rules in root `CLAUDE.md`, add path-scoped rules in
-  `packages/*/CLAUDE.md` and `apps/**/CLAUDE.md`.
 
 ## Commands
 - `__BUILD_CMD__`: Build
@@ -33,21 +31,22 @@ feat: | fix: | refactor: | docs: | test: | chore:
 ## Session Protocol
 - Start: `/project:session-start`
 - End: `/project:session-end [lite|standard|full]`
+- Pack create: `/project:pack-create [topic-slug] [purpose]`
 - Baseline: `/project:baseline-check [task summary]`
 - Between tasks: `/clear`
 
 ## Core Rules
-- Backlog-first: never start work without active backlog IDs
-- Load `docs/backlog-active.md` before `docs/backlog.md`
-- Evaluate before implementing: spec -> scope -> dependencies -> test strategy
-- Requirements live in `docs/spec/product-overview.md` + `docs/spec/use-cases.md`
-- Business constraints live in `docs/spec/business-rules.md`
+- Root docs coordinate work; topic packs own seam requirements and plans
+- Read `docs/NOW.md` before implementation
+- Read the active pack `INDEX.md` and `cursor.md` before code
+- Promote cross-pack truths into `docs/foundation/`
+- Evaluate before implementing: requirements -> scope -> dependencies -> test strategy
 - Select close mode by risk; default to the lightest safe mode
 - `standard` gates: `__LINT_CMD__ && __TYPECHECK_CMD__ && __FORMAT_CMD__`
 - `full` gates: standard + full test suite (`__TEST_CMD__`)
 - Decisions get IDs: D-YYYYMMDD-SNN-NN
+- Session logs are the audit trail; update pack canon when decisions change it
 - Work on feature branches, not main
-- No net growth for always-loaded rules (add one, remove/shrink one)
 
 ## Engineering Preferences
 - Explicit over clever
@@ -58,12 +57,12 @@ feat: | fix: | refactor: | docs: | test: | chore:
 - Multi-step work: confirm direction after first meaningful step
 
 ## Context Loading
-- Read `docs/.session-cursor.md`
-- Read `docs/context/core.md`
-- Read `docs/backlog-active.md`
-- Read `docs/spec/*` when requirements, UX flow, or business rules are in scope
-- Open `docs/backlog.md` only if active slice is insufficient
+- Read `docs/NOW.md`
+- Read `docs/foundation/overview.md`
+- Read the active pack `INDEX.md` and `cursor.md`
+- Read pack `requirements.md` and `plan.md` as needed
+- Read `docs/TOPICS.md` only when pack discovery/status is unclear
 - Scan directories before opening many files
 
 ## References
-@docs/context/core.md
+@docs/foundation/overview.md

@@ -1,6 +1,6 @@
 # ADOS Template Structure
 
-Version: ADOS template v3
+Version: ADOS template v4
 
 ```text
 ados-template/
@@ -24,7 +24,7 @@ ados-template/
     │   │   ├── session-start.md
     │   │   ├── session-end.md
     │   │   ├── decision.md
-    │   │   ├── task-packet.md
+    │   │   ├── pack-create.md
     │   │   └── baseline-check.md
     │   ├── hooks/
     │   │   ├── session-start.sh
@@ -35,24 +35,26 @@ ados-template/
     │       ├── code-reviewer.md
     │       └── diagram-syncer.md
     └── docs/
-        ├── .session-cursor.md
-        ├── backlog-active.md
-        ├── backlog.md
-        ├── context/core.md
-        ├── planning/IMPLEMENTATION-PLAN-TEMPLATE.md
+        ├── NOW.md
+        ├── TOPICS.md
+        ├── foundation/overview.md
+        ├── foundation/diagrams/.gitkeep
+        ├── topics/bootstrap/INDEX.md
+        ├── topics/bootstrap/cursor.md
+        ├── topics/bootstrap/requirements.md
+        ├── topics/bootstrap/plan.md
         ├── sessions/SESSION-TEMPLATE.md
-        ├── packets/.gitkeep
-        ├── spec/product-overview.md
-        ├── spec/business-rules.md
-        ├── spec/use-cases.md
-        ├── spec/diagrams/.gitkeep
-        └── archive/README.md
+        └── archive/
+            ├── README.md
+            ├── process/.gitkeep
+            ├── sessions/.gitkeep
+            └── topics/.gitkeep
 ```
 
 Design rule: keep always-loaded content small and stable; push detail to on-demand files.
 Operational rule: use risk-tier close modes (`lite|standard|full`) to avoid
 running heavy close steps on low-risk changes.
 Bootstrap rule: detect monorepos early and persist workspace tool/scope in
-`CLAUDE.md`, `docs/context/core.md`, and cursor/backlog templates.
-Spec rule: keep requirements in `docs/spec/` and keep structural diagrams in
-`docs/spec/diagrams/`.
+`CLAUDE.md` and `docs/foundation/overview.md`, then start from a bootstrap pack.
+Pack rule: keep seam requirements and plans inside `docs/topics/<slug>/`.
+Diagram rule: keep diagrams pack-local unless they are genuinely cross-pack or system-wide.

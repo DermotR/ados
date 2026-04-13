@@ -1,4 +1,4 @@
-# Core Context
+# Foundation Overview
 
 Last audited: __AUDIT_DATE__
 If this file conflicts with repo state, follow the repo and update this file.
@@ -8,6 +8,9 @@ If this file conflicts with repo state, follow the repo and update this file.
 - Stage: __PROJECT_STAGE__
 - Stack: __TECH_STACK__
 
+## Shared Overview
+__FOUNDATION_OVERVIEW__
+
 ## Key Paths
 - __KEY_PATHS__
 
@@ -16,11 +19,9 @@ If this file conflicts with repo state, follow the repo and update this file.
 - Workspace tool: __WORKSPACE_TOOL__
 - Primary scope: __WORKSPACE_SCOPE__
 
-## Guardrails
-- Use active backlog slice before opening full backlog.
-- Keep always-loaded docs lean and stable.
-- Treat `docs/spec/` as requirement source-of-truth:
-  `product-overview.md`, `use-cases.md`, `business-rules.md`, `diagrams/`.
-- Use `lite` session close by default; escalate to `standard|full` on risk triggers.
-- In monorepos, escalate at least to `standard` when a change spans multiple workspaces.
+## Shared Guardrails
+- Root docs coordinate work; topic packs own seam requirements and plans.
+- Keep `docs/NOW.md` focused on immediate handoff, not roadmap history.
+- Promote only genuinely cross-pack truths into `docs/foundation/`.
+- Keep `lite` close mode as the default unless risk requires escalation.
 - If instructions conflict with code, follow code and update docs.

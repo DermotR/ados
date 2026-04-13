@@ -6,14 +6,15 @@
 ## Objective
 {Objective}
 
-## Active Backlog IDs
-{IDs}
+## Active Packs
+- `{pack-slug}` - {why it was active}
 
 ## Workspace Scope
 {package/app/path or `.` for single-repo}
 
-## Packs Loaded
-`core`
+## Root Docs Read
+- `docs/NOW.md`
+- `docs/foundation/overview.md`
 
 ## Work Completed
 {Summary}
@@ -24,13 +25,13 @@
 ## Decisions
 - D-YYYYMMDD-SNN-NN: {Decision} - {Rationale}
 
-## Backlog Updates
-- {ID}: {old} -> {new}
+## Docs Updated
+- {pack file or root control doc}
 
 ## Optional Heavy Sections (standard/full only)
 - Files read summary
-- Spec updates (`docs/spec/product-overview.md`, `docs/spec/use-cases.md`, `docs/spec/business-rules.md`)
-- Diagram updates (`docs/spec/diagrams/`)
+- Canon updates (`requirements.md`, `plan.md`, `docs/foundation/*`)
+- Diagram updates (`docs/topics/*/diagrams/`, `docs/foundation/diagrams/`)
 - Auto-memory updates
 
 ## Next Session Should

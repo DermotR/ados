@@ -17,12 +17,13 @@ Classifier:
    - `lite`: quick self-review.
    - `standard`: self-review; subagent if >5 files/new abstractions.
    - `full`: code-reviewer subagent required.
-4. Always update:
-   - `docs/backlog-active.md`
-   - `docs/.session-cursor.md`
-5. `standard|full`: write `docs/sessions/YYYY-MM-DD.md`.
-6. `lite` + decision IDs recorded: create a minimal session log for auditability.
-7. `full` (or material status/history change): update `docs/backlog.md`.
-8. Write memory only if durable reusable learnings emerged.
-9. Update `docs/spec/diagrams/` only when structural changes occurred.
-10. Commit and report mode/checks/docs/next handoff.
+4. Always update the active pack `cursor.md`.
+5. Update the active pack `plan.md` when progress, sequencing, or open questions changed.
+6. Update the active pack `requirements.md` when canon changed.
+7. Update `docs/NOW.md` only if current focus or immediate handoff changed.
+8. Update `docs/TOPICS.md` only if pack status changed.
+9. `standard|full`: write `docs/sessions/YYYY-MM-DD.md`.
+10. `lite` + decision IDs recorded: create a minimal session log for auditability.
+11. Write memory only if durable reusable learnings emerged.
+12. Update pack-local diagrams or `docs/foundation/diagrams/` only when structural changes occurred.
+13. Commit and report mode/checks/docs/next handoff.

@@ -17,7 +17,8 @@ Options:
   --format-cmd VALUE
   --test-cmd VALUE
   --key-paths VALUE
-  --product-overview VALUE
+  --foundation-overview VALUE
+  --product-overview VALUE   Deprecated alias for --foundation-overview
   --audit-date YYYY-MM-DD
   --monorepo-mode VALUE     enabled|disabled
   --workspace-tool VALUE
@@ -50,7 +51,7 @@ TYPECHECK_CMD=""
 FORMAT_CMD=""
 TEST_CMD=""
 KEY_PATHS=""
-PRODUCT_OVERVIEW=""
+FOUNDATION_OVERVIEW=""
 AUDIT_DATE=""
 MONOREPO_MODE=""
 WORKSPACE_TOOL=""
@@ -113,9 +114,15 @@ while [[ $# -gt 0 ]]; do
       KEY_PATHS="$2"
       shift 2
       ;;
+    --foundation-overview)
+      [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
+      FOUNDATION_OVERVIEW="$2"
+      shift 2
+      ;;
     --product-overview)
       [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
-      PRODUCT_OVERVIEW="$2"
+      FOUNDATION_OVERVIEW="$2"
+      echo "WARNING: --product-overview is deprecated; use --foundation-overview." >&2
       shift 2
       ;;
     --audit-date)
@@ -171,7 +178,8 @@ if [[ -n "${VALUES_FILE}" ]]; then
       FORMAT_CMD) FORMAT_CMD="${FORMAT_CMD:-$value}" ;;
       TEST_CMD) TEST_CMD="${TEST_CMD:-$value}" ;;
       KEY_PATHS) KEY_PATHS="${KEY_PATHS:-$value}" ;;
-      PRODUCT_OVERVIEW) PRODUCT_OVERVIEW="${PRODUCT_OVERVIEW:-$value}" ;;
+      FOUNDATION_OVERVIEW) FOUNDATION_OVERVIEW="${FOUNDATION_OVERVIEW:-$value}" ;;
+      PRODUCT_OVERVIEW) FOUNDATION_OVERVIEW="${FOUNDATION_OVERVIEW:-$value}" ;;
       AUDIT_DATE) AUDIT_DATE="${AUDIT_DATE:-$value}" ;;
       MONOREPO_MODE) MONOREPO_MODE="${MONOREPO_MODE:-$value}" ;;
       WORKSPACE_TOOL) WORKSPACE_TOOL="${WORKSPACE_TOOL:-$value}" ;;
@@ -190,7 +198,7 @@ TYPECHECK_CMD="${TYPECHECK_CMD:-npm run typecheck}"
 FORMAT_CMD="${FORMAT_CMD:-npm run format:check}"
 TEST_CMD="${TEST_CMD:-npm test}"
 KEY_PATHS="${KEY_PATHS:-src/, tests/, docs/}"
-PRODUCT_OVERVIEW="${PRODUCT_OVERVIEW:-Describe the problem this product solves.}"
+FOUNDATION_OVERVIEW="${FOUNDATION_OVERVIEW:-Describe the project and what it is trying to achieve.}"
 AUDIT_DATE="${AUDIT_DATE:-$(date +%F)}"
 MONOREPO_MODE="${MONOREPO_MODE:-disabled}"
 MONOREPO_MODE="$(normalize_mode "${MONOREPO_MODE}")"
@@ -217,7 +225,7 @@ TYPECHECK_CMD_E="$(escape "${TYPECHECK_CMD}")"
 FORMAT_CMD_E="$(escape "${FORMAT_CMD}")"
 TEST_CMD_E="$(escape "${TEST_CMD}")"
 KEY_PATHS_E="$(escape "${KEY_PATHS}")"
-PRODUCT_OVERVIEW_E="$(escape "${PRODUCT_OVERVIEW}")"
+FOUNDATION_OVERVIEW_E="$(escape "${FOUNDATION_OVERVIEW}")"
 AUDIT_DATE_E="$(escape "${AUDIT_DATE}")"
 MONOREPO_MODE_E="$(escape "${MONOREPO_MODE}")"
 WORKSPACE_TOOL_E="$(escape "${WORKSPACE_TOOL}")"
@@ -237,7 +245,8 @@ render_file() {
     -e "s/__FORMAT_CMD__/${FORMAT_CMD_E}/g" \
     -e "s/__TEST_CMD__/${TEST_CMD_E}/g" \
     -e "s/__KEY_PATHS__/${KEY_PATHS_E}/g" \
-    -e "s/__PRODUCT_OVERVIEW__/${PRODUCT_OVERVIEW_E}/g" \
+    -e "s/__FOUNDATION_OVERVIEW__/${FOUNDATION_OVERVIEW_E}/g" \
+    -e "s/__PRODUCT_OVERVIEW__/${FOUNDATION_OVERVIEW_E}/g" \
     -e "s/__AUDIT_DATE__/${AUDIT_DATE_E}/g" \
     -e "s/__MONOREPO_MODE__/${MONOREPO_MODE_E}/g" \
     -e "s/__WORKSPACE_TOOL__/${WORKSPACE_TOOL_E}/g" \
@@ -247,13 +256,13 @@ render_file() {
 }
 
 render_file "CLAUDE.md"
-render_file "docs/.session-cursor.md"
-render_file "docs/context/core.md"
-render_file "docs/backlog-active.md"
-render_file "docs/backlog.md"
-render_file "docs/spec/product-overview.md"
-render_file "docs/spec/business-rules.md"
-render_file "docs/spec/use-cases.md"
+render_file "docs/NOW.md"
+render_file "docs/TOPICS.md"
+render_file "docs/foundation/overview.md"
+render_file "docs/topics/bootstrap/INDEX.md"
+render_file "docs/topics/bootstrap/cursor.md"
+render_file "docs/topics/bootstrap/requirements.md"
+render_file "docs/topics/bootstrap/plan.md"
 
 CLAUDE_LINES="$(wc -l < "CLAUDE.md" | tr -d ' ')"
 if [[ "${CLAUDE_LINES}" -gt 80 ]]; then
@@ -261,12 +270,12 @@ if [[ "${CLAUDE_LINES}" -gt 80 ]]; then
 fi
 
 if command -v rg >/dev/null 2>&1; then
-  if rg -q "@docs/backlog\.md" "CLAUDE.md"; then
-    echo "WARNING: CLAUDE.md imports docs/backlog.md; use backlog-active + pointer instead."
+  if rg -q "@docs/NOW\.md|@docs/topics/" "CLAUDE.md"; then
+    echo "WARNING: CLAUDE.md imports volatile docs; keep imports limited to stable foundation context."
   fi
 else
-  if grep -q "@docs/backlog.md" "CLAUDE.md"; then
-    echo "WARNING: CLAUDE.md imports docs/backlog.md; use backlog-active + pointer instead."
+  if grep -Eq "@docs/NOW\.md|@docs/topics/" "CLAUDE.md"; then
+    echo "WARNING: CLAUDE.md imports volatile docs; keep imports limited to stable foundation context."
   fi
 fi
 

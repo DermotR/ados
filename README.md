@@ -29,9 +29,17 @@ bash ~/tools/ados/ados-template/scripts/init-ados.sh .
 bash ~/tools/ados/ados-template/scripts/init-ados.sh . --force
 ```
 
+`--force` merges ADOS files into an existing repo. Commit or back up first if you
+already have `CLAUDE.md`, `.claude/`, or `docs/` content you care about.
+
 6. Complete setup:
-- Fill `docs/backlog-active.md` with current milestone + 3-10 active items.
-- Fill `docs/spec/product-overview.md`, `docs/spec/use-cases.md`, and `docs/spec/business-rules.md`.
+- Fill `docs/foundation/overview.md`.
+- Review `docs/NOW.md`, `docs/TOPICS.md`, and the starter pack under `docs/topics/bootstrap/`.
+- Create the first real topic pack for the seam you are actively working on.
+  Use `/project:pack-create [topic-slug] [purpose]` or create `docs/topics/<slug>/`
+  with `INDEX.md`, `cursor.md`, `requirements.md`, and `plan.md`.
+- Update `docs/NOW.md` and `docs/TOPICS.md` so the real pack becomes active and
+  `bootstrap` becomes reference-only.
 - Review `CLAUDE.md` commands and key paths.
 - Start with `/project:session-start`.
 - Close sessions with `/project:session-end [lite|standard|full]` (default to lightest safe mode).
@@ -40,12 +48,14 @@ bash ~/tools/ados/ados-template/scripts/init-ados.sh . --force
 Note: if monorepo signals are detected (`pnpm-workspace.yaml`, `turbo.json`,
 `nx.json`, `workspaces`), init applies a workspace-aware profile automatically.
 If an existing repo still has `docs/diagrams/`, init migrates those diagrams to
-`docs/spec/diagrams/`.
+`docs/foundation/diagrams/`.
 
 ## Repo Contents
 
-- `ADOS-v3-PROCESS.md`: current process reference and templates
-- `ADOS-v2-PROCESS.md`: previous version (archived reference)
+- `ADOS-v4-PROCESS.md`: current process reference
+- `ADOS-v4-MIGRATION.md`: migration guide for existing ADOS repos
+- `ADOS-v3-PROCESS.md`: previous version (archived reference)
+- `ADOS-v2-PROCESS.md`: older archived reference
 - `ados-template/`: scaffold + initializer + copier template
 
 ## Alternative Init Paths
@@ -59,7 +69,7 @@ bash ~/tools/ados/ados-template/scripts/init-ados.sh \
   --project-name "My Project" \
   --project-stage "MVP" \
   --tech-stack "TypeScript, Next.js, Postgres" \
-  --product-overview "Briefly describe the problem this product solves"
+  --foundation-overview "Briefly describe the project and what it is trying to achieve"
 ```
 
 Copier alternative:

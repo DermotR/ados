@@ -2,6 +2,7 @@
 set -euo pipefail
 
 REQUIRE_COPIER=0
+COPIER_BIN=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -21,6 +22,15 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 cd "${REPO_ROOT}"
 
+if command -v copier >/dev/null 2>&1; then
+  COPIER_BIN="$(command -v copier)"
+elif command -v python3 >/dev/null 2>&1; then
+  PYTHON_USER_BIN="$(python3 -c 'import site; print(site.USER_BASE + "/bin")' 2>/dev/null || true)"
+  if [[ -n "${PYTHON_USER_BIN}" && -x "${PYTHON_USER_BIN}/copier" ]]; then
+    COPIER_BIN="${PYTHON_USER_BIN}/copier"
+  fi
+fi
+
 echo "[1/7] Shell syntax checks"
 bash -n ados-template/scripts/init-ados.sh
 bash -n ados-template/template/.ados/render-ados.sh
@@ -31,14 +41,24 @@ assert_template_result() {
   local expected_tool="$3"
 
   test -f "${dir}/CLAUDE.md"
-  test -f "${dir}/docs/backlog-active.md"
-  test -f "${dir}/docs/context/core.md"
-  test -f "${dir}/docs/.session-cursor.md"
+  test -f "${dir}/docs/NOW.md"
+  test -f "${dir}/docs/TOPICS.md"
+  test -f "${dir}/docs/foundation/overview.md"
+  test -f "${dir}/docs/topics/bootstrap/INDEX.md"
+  test -f "${dir}/docs/topics/bootstrap/cursor.md"
+  test -f "${dir}/docs/topics/bootstrap/requirements.md"
+  test -f "${dir}/docs/topics/bootstrap/plan.md"
   test -f "${dir}/.claude/commands/session-end.md"
-  test -f "${dir}/docs/spec/product-overview.md"
-  test -f "${dir}/docs/spec/business-rules.md"
-  test -f "${dir}/docs/spec/use-cases.md"
-  test -d "${dir}/docs/spec/diagrams"
+  test -f "${dir}/.claude/commands/pack-create.md"
+  test -d "${dir}/docs/foundation/diagrams"
+  test -d "${dir}/docs/archive/process"
+  test -d "${dir}/docs/archive/topics"
+  test -d "${dir}/docs/archive/sessions"
+
+  if [[ -e "${dir}/docs/backlog-active.md" || -e "${dir}/docs/backlog.md" || -d "${dir}/docs/spec" ]]; then
+    echo "Legacy v3 doc structure should not exist in ${dir}" >&2
+    exit 1
+  fi
 
   if [[ -d "${dir}/.ados" ]]; then
     echo "Expected .ados to be removed after render in ${dir}" >&2
@@ -72,7 +92,7 @@ assert_template_result() {
   fi
 
   if ! grep -q "/project:session-end \\[lite|standard|full\\]" "${dir}/CLAUDE.md"; then
-    echo "CLAUDE.md missing v3 close-mode protocol line in ${dir}" >&2
+    echo "CLAUDE.md missing close-mode protocol line in ${dir}" >&2
     exit 1
   fi
 
@@ -86,13 +106,13 @@ assert_template_result() {
     exit 1
   fi
 
-  if ! grep -q "Monorepo mode: ${expected_mode}" "${dir}/docs/context/core.md"; then
-    echo "core.md has unexpected monorepo mode in ${dir}" >&2
+  if ! grep -q "Monorepo mode: ${expected_mode}" "${dir}/docs/foundation/overview.md"; then
+    echo "foundation overview has unexpected monorepo mode in ${dir}" >&2
     exit 1
   fi
 
-  if ! grep -q "Monorepo mode: ${expected_mode}" "${dir}/docs/.session-cursor.md"; then
-    echo "session-cursor has unexpected monorepo mode in ${dir}" >&2
+  if ! grep -q "Workspace tool: ${expected_tool}" "${dir}/docs/foundation/overview.md"; then
+    echo "foundation overview has unexpected workspace tool in ${dir}" >&2
     exit 1
   fi
 
@@ -122,6 +142,7 @@ bash ados-template/scripts/init-ados.sh \
   --format-cmd "npm run format:check" \
   --test-cmd "npm test" \
   --key-paths "src, docs" \
+  --foundation-overview "Smoke project overview" \
   --audit-date "2026-02-27" >/dev/null
 assert_template_result "${TMP_INIT_DIR}" "disabled" "none"
 
@@ -162,10 +183,10 @@ bash ados-template/scripts/init-ados.sh \
   --tech-stack "TypeScript, Node" \
   --key-paths "src, docs" >/dev/null
 assert_template_result "${TMP_MIGRATE_DIR}" "disabled" "none"
-test -f "${TMP_MIGRATE_DIR}/docs/spec/diagrams/system-context.puml"
+test -f "${TMP_MIGRATE_DIR}/docs/foundation/diagrams/system-context.puml"
 
 echo "[5/7] Copier availability check"
-if ! command -v copier >/dev/null 2>&1; then
+if [[ -z "${COPIER_BIN}" ]]; then
   if [[ "${REQUIRE_COPIER}" -eq 1 ]]; then
     echo "Copier is required but not installed" >&2
     exit 1
@@ -178,7 +199,7 @@ fi
 
 echo "[6/7] Copier scaffold"
 TMP_COPIER_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ados-copier-smoke.XXXXXX")"
-copier copy "${REPO_ROOT}/ados-template" "${TMP_COPIER_DIR}" --defaults --trust >/dev/null
+"${COPIER_BIN}" copy "${REPO_ROOT}/ados-template" "${TMP_COPIER_DIR}" --defaults --trust >/dev/null
 assert_template_result "${TMP_COPIER_DIR}" "disabled" "none"
 
 echo "[7/7] Result: PASS"

@@ -12,7 +12,7 @@
 - Tech stack summary
 - Commands: build/dev/lint/typecheck/format/test
 - Key paths summary
-- Product overview (short problem statement)
+- Foundation overview (short shared summary)
 - Monorepo profile (auto-detected; workspace tool/scope)
 
 This can run:
@@ -23,23 +23,26 @@ This can run:
 ## 3. Render placeholders
 Replace placeholders in:
 - `CLAUDE.md`
-- `docs/.session-cursor.md`
-- `docs/context/core.md`
-- `docs/backlog-active.md`
-- `docs/spec/product-overview.md`
-- `docs/spec/business-rules.md`
-- `docs/spec/use-cases.md`
+- `docs/NOW.md`
+- `docs/TOPICS.md`
+- `docs/foundation/overview.md`
+- `docs/topics/bootstrap/INDEX.md`
+- `docs/topics/bootstrap/cursor.md`
+- `docs/topics/bootstrap/requirements.md`
+- `docs/topics/bootstrap/plan.md`
 
 Rendering is handled by `template/.ados/render-ados.sh`.
 
 ## 4. Validate lean defaults
 - Warn if `CLAUDE.md` exceeds 80 lines.
-- Warn if `CLAUDE.md` imports `docs/backlog.md`.
+- Warn if volatile docs are imported into `CLAUDE.md`.
 
 ## 5. Hand-off
 Print next steps:
-1. Fill first active backlog items.
-2. Fill `docs/spec/` baseline (use cases + business rules).
-3. Run `/project:session-start`.
-4. Use `/project:session-end [lite|standard|full]` with risk-tier defaults.
-5. Commit scaffold.
+1. Fill `docs/foundation/overview.md`.
+2. Review `docs/NOW.md`, `docs/TOPICS.md`, and the bootstrap pack.
+3. Create the first real topic pack for the active seam.
+4. Update `docs/NOW.md` and `docs/TOPICS.md` so the real pack becomes active.
+5. Run `/project:session-start`.
+6. Use `/project:session-end [lite|standard|full]` with risk-tier defaults.
+7. Commit scaffold.

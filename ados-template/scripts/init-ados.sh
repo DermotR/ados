@@ -20,7 +20,8 @@ Options:
   --format-cmd VALUE
   --test-cmd VALUE
   --key-paths VALUE
-  --product-overview VALUE  Short problem statement for docs/spec/product-overview.md
+  --foundation-overview VALUE  Short shared overview for docs/foundation/overview.md
+  --product-overview VALUE     Deprecated alias for --foundation-overview
   --audit-date YYYY-MM-DD
   --monorepo true|false      Force monorepo profile on/off
   --workspace-tool VALUE     e.g. pnpm, turbo, nx, npm-workspaces
@@ -81,11 +82,11 @@ detect_workspace_tool() {
 migrate_legacy_diagrams() {
   local target="$1"
   local legacy_dir="${target}/docs/diagrams"
-  local spec_diagrams_dir="${target}/docs/spec/diagrams"
+  local foundation_diagrams_dir="${target}/docs/foundation/diagrams"
 
   [[ -d "${legacy_dir}" ]] || return 0
 
-  mkdir -p "${spec_diagrams_dir}"
+  mkdir -p "${foundation_diagrams_dir}"
 
   local moved=0
   shopt -s nullglob dotglob
@@ -95,12 +96,12 @@ migrate_legacy_diagrams() {
     name="$(basename "${entry}")"
     [[ "${name}" == ".gitkeep" ]] && continue
 
-    if [[ -e "${spec_diagrams_dir}/${name}" ]]; then
+    if [[ -e "${foundation_diagrams_dir}/${name}" ]]; then
       local stamp
       stamp="$(date +%s)"
-      mv "${entry}" "${spec_diagrams_dir}/${name}.migrated-${stamp}"
+      mv "${entry}" "${foundation_diagrams_dir}/${name}.migrated-${stamp}"
     else
-      mv "${entry}" "${spec_diagrams_dir}/${name}"
+      mv "${entry}" "${foundation_diagrams_dir}/${name}"
     fi
     moved=1
   done
@@ -109,7 +110,7 @@ migrate_legacy_diagrams() {
   rmdir "${legacy_dir}" 2>/dev/null || true
 
   if [[ "${moved}" -eq 1 ]]; then
-    echo "Migrated legacy diagrams: docs/diagrams -> docs/spec/diagrams"
+    echo "Migrated legacy diagrams: docs/diagrams -> docs/foundation/diagrams"
   fi
 }
 
@@ -131,7 +132,7 @@ TYPECHECK_CMD=""
 FORMAT_CMD=""
 TEST_CMD=""
 KEY_PATHS=""
-PRODUCT_OVERVIEW=""
+FOUNDATION_OVERVIEW=""
 AUDIT_DATE=""
 MONOREPO_FLAG=""
 WORKSPACE_TOOL=""
@@ -213,9 +214,16 @@ while [[ $# -gt 0 ]]; do
       INTERACTIVE=0
       shift 2
       ;;
+    --foundation-overview)
+      [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
+      FOUNDATION_OVERVIEW="$2"
+      INTERACTIVE=0
+      shift 2
+      ;;
     --product-overview)
       [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 1; }
-      PRODUCT_OVERVIEW="$2"
+      FOUNDATION_OVERVIEW="$2"
+      echo "WARNING: --product-overview is deprecated; use --foundation-overview." >&2
       INTERACTIVE=0
       shift 2
       ;;
@@ -282,6 +290,12 @@ if [[ -n "$(ls -A "${TARGET_DIR}" 2>/dev/null || true)" && ${FORCE} -ne 1 ]]; th
   exit 1
 fi
 
+if [[ -n "$(ls -A "${TARGET_DIR}" 2>/dev/null || true)" && ${FORCE} -eq 1 ]]; then
+  echo "WARNING: --force will merge ADOS files into a non-empty target." >&2
+  echo "It may overwrite existing files under CLAUDE.md, .claude/, or docs/ where names collide." >&2
+  echo "Commit or back up first if you need to preserve current project docs carefully." >&2
+fi
+
 if [[ ! -t 0 ]]; then
   INTERACTIVE=0
 fi
@@ -307,7 +321,7 @@ prompt_if_missing TYPECHECK_CMD "Typecheck command" "npm run typecheck"
 prompt_if_missing FORMAT_CMD "Format-check command" "npm run format:check"
 prompt_if_missing TEST_CMD "Test command" "npm test"
 prompt_if_missing KEY_PATHS "Key paths summary (one line)" "src/, tests/, docs/"
-prompt_if_missing PRODUCT_OVERVIEW "Product overview (short problem statement)" "Describe the problem this product solves."
+prompt_if_missing FOUNDATION_OVERVIEW "Foundation overview (short shared summary)" "Describe the project and what it is trying to achieve."
 prompt_if_missing AUDIT_DATE "Audit date (YYYY-MM-DD)" "$(date +%F)"
 
 PROJECT_NAME="${PROJECT_NAME:-New Project}"
@@ -320,7 +334,7 @@ TYPECHECK_CMD="${TYPECHECK_CMD:-npm run typecheck}"
 FORMAT_CMD="${FORMAT_CMD:-npm run format:check}"
 TEST_CMD="${TEST_CMD:-npm test}"
 KEY_PATHS="${KEY_PATHS:-src/, tests/, docs/}"
-PRODUCT_OVERVIEW="${PRODUCT_OVERVIEW:-Describe the problem this product solves.}"
+FOUNDATION_OVERVIEW="${FOUNDATION_OVERVIEW:-Describe the project and what it is trying to achieve.}"
 AUDIT_DATE="${AUDIT_DATE:-$(date +%F)}"
 
 DETECTED_MONOREPO=false
@@ -386,7 +400,7 @@ TYPECHECK_CMD=${TYPECHECK_CMD}
 FORMAT_CMD=${FORMAT_CMD}
 TEST_CMD=${TEST_CMD}
 KEY_PATHS=${KEY_PATHS}
-PRODUCT_OVERVIEW=${PRODUCT_OVERVIEW}
+FOUNDATION_OVERVIEW=${FOUNDATION_OVERVIEW}
 AUDIT_DATE=${AUDIT_DATE}
 MONOREPO_MODE=${MONOREPO_MODE}
 WORKSPACE_TOOL=${WORKSPACE_TOOL}
@@ -404,8 +418,11 @@ echo
 echo "ADOS scaffold initialized in: ${TARGET_DIR}"
 echo "Monorepo profile: ${MONOREPO_MODE} (tool=${WORKSPACE_TOOL}, scope=${WORKSPACE_SCOPE})"
 echo "Next steps:"
-echo "1) Fill docs/backlog-active.md with current milestone + 3-10 items."
-echo "2) Fill docs/spec/product-overview.md, docs/spec/use-cases.md, and docs/spec/business-rules.md."
-echo "3) Review CLAUDE.md command values and key paths."
-echo "4) Run /project:session-start, then close with /project:session-end [lite|standard|full]."
-echo "5) Commit bootstrap files."
+echo "1) Fill docs/foundation/overview.md."
+echo "2) Review docs/NOW.md, docs/TOPICS.md, and docs/topics/bootstrap/."
+echo "3) Create the first real topic pack for the seam you are actively working on."
+echo "   Use /project:pack-create [topic-slug] [purpose] or create docs/topics/<slug>/ manually."
+echo "4) Update docs/NOW.md and docs/TOPICS.md so the real pack becomes active and bootstrap becomes reference-only."
+echo "5) Review CLAUDE.md command values and key paths."
+echo "6) Run /project:session-start, then close with /project:session-end [lite|standard|full]."
+echo "7) Commit bootstrap files."
