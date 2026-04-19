@@ -330,6 +330,64 @@ During implementation:
 - confirm direction with the user after the first meaningful step of multi-step work
 - record durable decisions when they affect canon or future direction
 
+### 5.2.1 Context Health
+
+Treat context rot as a soft failure mode before the hard window limit.
+
+Common signals:
+
+- repeated course-corrections in the same thread
+- more than one abandoned approach still sitting in active context
+- the active work no longer matches the pack read path that started the session
+- verbose tool output is dominating recent turns
+- the agent is re-reading the same files to recover orientation
+
+When two or more signals appear, do not blindly continue. Choose a context
+transition on purpose.
+
+### 5.2.2 Post-Turn Routing
+
+After a meaningful turn, choose one:
+
+- `continue`: same seam, same direction, recent context is still helping
+- `rewind`: the current branch is wrong and the failed path should not remain in
+  working context
+- `compact`: same task, but the thread is noisy and needs a smaller working set
+- `clear` or fresh session: the next task is materially different or unrelated
+- `subagent`: the parent needs the conclusion, not the intermediate output
+
+Rules:
+
+- prefer `rewind` over appending long corrective instructions to a bad branch
+- use `compact` proactively at task boundaries, not only when context is already degraded
+- treat the pack boundary as the default task boundary
+- use fresh sessions or forks for speculative alternatives instead of stacking them into the main thread
+
+### 5.2.3 Abandoned Approaches
+
+Do not preserve every failed attempt. Preserve only the failures that create
+future constraints or help avoid repeating the same mistake.
+
+If an abandoned path has durable value, capture a short rejected-approach note in
+the session log or pack `plan.md` before rewinding or clearing:
+
+- what was tried
+- why it was rejected
+- what constraint or next step now follows from that
+
+### 5.2.4 Compact Contract
+
+If the tool supports compaction, compact instructions should preserve:
+
+- active pack slug
+- current objective
+- locked decisions
+- changed files
+- immediate next step
+- open risks, questions, and pending checks
+
+They should drop dead ends, verbose tool output, and superseded plans.
+
 ### 5.3 Session End
 
 Triggered by: `/project:session-end [lite|standard|full]`

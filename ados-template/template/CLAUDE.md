@@ -33,7 +33,9 @@ feat: | fix: | refactor: | docs: | test: | chore:
 - End: `/project:session-end [lite|standard|full]`
 - Pack create: `/project:pack-create [topic-slug] [purpose]`
 - Baseline: `/project:baseline-check [task summary]`
-- Between tasks: `/clear`
+- Same task, noisy context: `/compact`
+- Wrong branch: `/rewind`
+- New unrelated task: `/clear` or a fresh session
 
 ## Core Rules
 - Root docs coordinate work; topic packs own seam requirements and plans
@@ -41,11 +43,14 @@ feat: | fix: | refactor: | docs: | test: | chore:
 - Read the active pack `INDEX.md` and `cursor.md` before code
 - Promote cross-pack truths into `docs/foundation/`
 - Evaluate before implementing: requirements -> scope -> dependencies -> test strategy
+- Treat the pack boundary as the default task boundary
 - Select close mode by risk; default to the lightest safe mode
 - `standard` gates: `__LINT_CMD__ && __TYPECHECK_CMD__ && __FORMAT_CMD__`
 - `full` gates: standard + full test suite (`__TEST_CMD__`)
 - Decisions get IDs: D-YYYYMMDD-SNN-NN
 - Session logs are the audit trail; update pack canon when decisions change it
+- Capture only durable rejected approaches, then rewind or clear
+- Use subagents when you need the conclusion, not the intermediate output
 - Work on feature branches, not main
 
 ## Engineering Preferences
@@ -63,6 +68,11 @@ feat: | fix: | refactor: | docs: | test: | chore:
 - Read pack `requirements.md` and `plan.md` as needed
 - Read `docs/TOPICS.md` only when pack discovery/status is unclear
 - Scan directories before opening many files
+
+## Compact Contract
+- Preserve active pack, objective, locked decisions, and changed files
+- Preserve next step, open risks/questions, and pending checks
+- Drop dead ends, verbose tool output, and superseded plans
 
 ## References
 @docs/foundation/overview.md
